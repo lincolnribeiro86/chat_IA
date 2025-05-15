@@ -15,7 +15,6 @@ from PyPDF2 import PdfReader
 import docx
 import openpyxl
 
-# Importe as funções do seu novo módulo
 import gerenciador_conversas as gc
 
 # Carrega variáveis de ambiente no início
