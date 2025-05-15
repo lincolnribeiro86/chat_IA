@@ -19,7 +19,7 @@ Este projeto oferece uma interface de chat flexível que permite aos usuários i
 ## Como Usar
 
 1.  **Pré-requisitos:**
-    *   Python 3.7+
+    *   Python 3.7+ (o presente projeto foi escrito usando Python 3.9)
     *   [Ollama](https://ollama.com/) instalado para modelos locais
     *   Chaves de API da OpenAI e/ou Gemini (se desejar usar esses modelos)
 2.  **Instalação:**
