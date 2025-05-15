@@ -59,8 +59,13 @@ O projeto é estruturado da seguinte forma:
 *   `app.py`: Arquivo principal do Streamlit, responsável pela interface do usuário e pela lógica de interação com os modelos de IA.
 *   `modelos_tokens.py`: Módulo que contém informações sobre os limites de tokens dos modelos e funções para limitar o texto de acordo com esses limites.
 *   `gerenciador_conversas.py`: Módulo responsável por salvar e carregar conversas em formato JSON.
+    *   **Funcionalidades:**
+        *   Salva conversas em arquivos JSON, incluindo metadados como o modelo utilizado e o timestamp.
+        *   Carrega conversas de arquivos JSON.
+        *   Lista os arquivos de conversa salvos no diretório `conversas_salvas`.
 *   `requirements.txt`: Lista de dependências do projeto.
 *   `.env`: Arquivo para armazenar as chaves de API (não versionado).
+*   `conversas_salvas/`: Diretório onde as conversas salvas em JSON são armazenadas.
 
 ## Dependências
 
@@ -94,4 +99,4 @@ Contribuições são bem-vindas! Sinta-se à vontade para abrir issues ou enviar
 *   As chaves de API da OpenAI e Gemini são opcionais, mas necessárias para usar esses modelos.
 *   O arquivo `.env` não deve ser versionado para proteger suas chaves de API.
 *   O projeto utiliza cache em memória para otimizar o desempenho, mas você pode desativá-lo se necessário.
-
+*   As conversas salvas são armazenadas no diretório `conversas_salvas/`.
