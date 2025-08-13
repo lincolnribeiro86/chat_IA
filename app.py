@@ -693,15 +693,15 @@ if prompt and llm:
             else:
                 # Código original para modelos não-GPT5
                 for chunk in llm.stream(mensagens_para_llm):
-                if st.session_state["parar_geracao"]:
-                    st.session_state["resposta_completa"] += "\n\n**Geração interrompida pelo usuário.**"
-                    resposta_placeholder.markdown(
-                        st.session_state["resposta_completa"])
-                    break
-                if hasattr(chunk, 'content') and chunk.content is not None:
-                    st.session_state["resposta_completa"] += chunk.content
-                    resposta_placeholder.markdown(
-                        st.session_state["resposta_completa"] + "▌")
+                    if st.session_state["parar_geracao"]:
+                        st.session_state["resposta_completa"] += "\n\n**Geração interrompida pelo usuário.**"
+                        resposta_placeholder.markdown(
+                            st.session_state["resposta_completa"])
+                        break
+                    if hasattr(chunk, 'content') and chunk.content is not None:
+                        st.session_state["resposta_completa"] += chunk.content
+                        resposta_placeholder.markdown(
+                            st.session_state["resposta_completa"] + "▌")
                 progress += direction * 0.05
                 if progress >= 1:
                     direction = -1
