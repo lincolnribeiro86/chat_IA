@@ -255,10 +255,8 @@ modelos_locais = {
     "llama3.1": {"type": "ollama"},
     "llama3.2": {"type": "ollama"},
     "qwen3:8b": {"type": "ollama"},
-    "qwen2.5:7b": {"type": "ollama"},
     "qwen2.5-coder:7b": {"type": "ollama"},
     "gemma3:4b": {"type": "ollama"},
-    "mistral": {"type": "ollama"},
     "phi4-mini-reasoning:3.8b": {"type": "ollama"},
     "phi4-mini:3.8b": {"type": "ollama"},
     "phi3.5:3.8b": {"type": "ollama"},
@@ -351,11 +349,12 @@ with st.sidebar:
     model_name = modelo_selecionado_key.split(
         ": ")[1] if ": " in modelo_selecionado_key else modelo_selecionado_key
     modelo_tipo = todos_modelos[modelo_selecionado_key]["type"]
-    
+
     # Verificar se é GPT-5 primeiro para desabilitar temperatura
     modelo_selecionado_temp = modelo_selecionado_key.split(":", 1)[1].strip()
-    is_gpt5_temp = any(gpt5_model in modelo_selecionado_temp for gpt5_model in ["gpt-5", "gpt-5-mini", "gpt-5-nano"])
-    
+    is_gpt5_temp = any(gpt5_model in modelo_selecionado_temp for gpt5_model in [
+                       "gpt-5", "gpt-5-mini", "gpt-5-nano"])
+
     # Slider para controlar a temperatura do modelo
     if not is_gpt5_temp:
         temperatura = st.slider(
@@ -364,14 +363,15 @@ with st.sidebar:
     else:
         st.sidebar.write("🌡️ Temperatura: 1.0 (fixo para GPT-5)")
         temperatura = 1.0
-    
+
     # Usar a mesma verificação is_gpt5
     is_gpt5 = is_gpt5_temp
-    
+
     if is_gpt5:
         st.sidebar.subheader("🚀 Configurações GPT-5")
-        st.sidebar.info("ℹ️ GPT-5 usa temperature fixa = 1.0 (não configurável)")
-        
+        st.sidebar.info(
+            "ℹ️ GPT-5 usa temperature fixa = 1.0 (não configurável)")
+
         # Seletor de Verbosity
         verbosity = st.selectbox(
             "Nível de Verbosidade",
@@ -379,14 +379,14 @@ with st.sidebar:
             index=1,  # medium como padrão
             help="• Low: Respostas concisas\n• Medium: Detalhamento balanceado\n• High: Respostas detalhadas"
         )
-        
+
         # Opção de Minimal Reasoning
         use_minimal_reasoning = st.checkbox(
             "Reasoning Mínimo ⚡",
             value=False,
             help="Ativa reasoning mínimo para respostas mais rápidas. Ideal para tarefas simples como classificação ou extração."
         )
-        
+
         # Opções de Custom Tools
         st.sidebar.subheader("🔧 Ferramentas Personalizadas")
         use_custom_tools = st.checkbox(
@@ -394,11 +394,12 @@ with st.sidebar:
             value=False,
             help="Permite uso de free-form function calling e CFG"
         )
-        
+
         if use_custom_tools:
             tool_type = st.selectbox(
                 "Tipo de Ferramenta",
-                options=["SQL Generator", "Timestamp Generator", "Code Executor", "Custom"],
+                options=["SQL Generator", "Timestamp Generator",
+                         "Code Executor", "Custom"],
                 help="Escolha o tipo de ferramenta personalizada"
             )
     else:
@@ -605,10 +606,12 @@ if prompt and llm:
             if isinstance(llm, GPT5Handler):
                 # Prepara o histórico no formato correto
                 conversation_history = []
-                for tipo, conteudo in st.session_state["mensagens"][:-1]:  # Exclui a mensagem atual
+                # Exclui a mensagem atual
+                for tipo, conteudo in st.session_state["mensagens"][:-1]:
                     role = "user" if tipo == "human" else "assistant"
-                    conversation_history.append({"role": role, "content": conteudo})
-                
+                    conversation_history.append(
+                        {"role": role, "content": conteudo})
+
                 # Verifica se deve usar ferramentas personalizadas
                 if use_custom_tools and tool_type:
                     if tool_type == "SQL Generator":
@@ -618,10 +621,12 @@ if prompt and llm:
                             model=model_name
                         )
                         if "tool_call" in result:
-                            st.session_state["resposta_completa"] = f"**SQL Gerado:**\n```sql\n{result['tool_call']['input']}\n```\n\n**Explicação:**\n{result.get('response', 'Query SQL gerada com sucesso.')}"
+                            st.session_state[
+                                "resposta_completa"] = f"**SQL Gerado:**\n```sql\n{result['tool_call']['input']}\n```\n\n**Explicação:**\n{result.get('response', 'Query SQL gerada com sucesso.')}"
                         else:
-                            st.session_state["resposta_completa"] = result.get('response', 'Erro na geração SQL')
-                    
+                            st.session_state["resposta_completa"] = result.get(
+                                'response', 'Erro na geração SQL')
+
                     elif tool_type == "Timestamp Generator":
                         result = llm.create_response_with_custom_tool(
                             input_message=prompt,
@@ -632,10 +637,12 @@ if prompt and llm:
                             grammar_syntax="regex"
                         )
                         if "tool_call" in result:
-                            st.session_state["resposta_completa"] = f"**Timestamp:**\n{result['tool_call']['input']}\n\n{result.get('response', '')}"
+                            st.session_state[
+                                "resposta_completa"] = f"**Timestamp:**\n{result['tool_call']['input']}\n\n{result.get('response', '')}"
                         else:
-                            st.session_state["resposta_completa"] = result.get('response', 'Erro na geração do timestamp')
-                    
+                            st.session_state["resposta_completa"] = result.get(
+                                'response', 'Erro na geração do timestamp')
+
                     else:
                         # Usa resposta padrão para outros tipos
                         if use_minimal_reasoning:
@@ -651,8 +658,9 @@ if prompt and llm:
                                 verbosity=verbosity,
                                 conversation_history=conversation_history
                             )
-                        st.session_state["resposta_completa"] = result.get('response', 'Erro na resposta')
-                
+                        st.session_state["resposta_completa"] = result.get(
+                            'response', 'Erro na resposta')
+
                 else:
                     # Usa resposta padrão com verbosity ou minimal reasoning
                     if use_minimal_reasoning:
@@ -664,7 +672,8 @@ if prompt and llm:
                         # Adiciona indicador de reasoning mínimo
                         usage_info = result.get('usage', {})
                         tokens_info = f" (⚡ {usage_info.get('output_tokens', 'N/A')} tokens)"
-                        st.session_state["resposta_completa"] = result.get('response', 'Erro na resposta') + f"\n\n*Resposta rápida{tokens_info}*"
+                        st.session_state["resposta_completa"] = result.get(
+                            'response', 'Erro na resposta') + f"\n\n*Resposta rápida{tokens_info}*"
                     else:
                         result = llm.create_response_with_verbosity(
                             input_message=prompt,
@@ -675,9 +684,11 @@ if prompt and llm:
                         # Adiciona informações de verbosity e tokens
                         usage_info = result.get('usage', {})
                         tokens_info = f" ({usage_info.get('output_tokens', 'N/A')} tokens)"
-                        verbosity_emoji = {"low": "📝", "medium": "📄", "high": "📚"}
-                        st.session_state["resposta_completa"] = result.get('response', 'Erro na resposta') + f"\n\n*{verbosity_emoji.get(verbosity, '📄')} Verbosity: {verbosity}{tokens_info}*"
-                
+                        verbosity_emoji = {"low": "📝",
+                                           "medium": "📄", "high": "📚"}
+                        st.session_state["resposta_completa"] = result.get(
+                            'response', 'Erro na resposta') + f"\n\n*{verbosity_emoji.get(verbosity, '📄')} Verbosity: {verbosity}{tokens_info}*"
+
                 # Simula progresso para GPT-5 (resposta não é streaming)
                 for i in range(10):
                     if st.session_state["parar_geracao"]:
@@ -686,10 +697,11 @@ if prompt and llm:
                     progress = (i + 1) * 0.1
                     progress_bar.progress(progress)
                     time.sleep(0.1)
-                
+
                 # Exibe a resposta final
-                resposta_placeholder.markdown(st.session_state["resposta_completa"])
-                
+                resposta_placeholder.markdown(
+                    st.session_state["resposta_completa"])
+
             else:
                 # Código original para modelos não-GPT5
                 for chunk in llm.stream(mensagens_para_llm):
