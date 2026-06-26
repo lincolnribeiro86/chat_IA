@@ -66,11 +66,8 @@ async def _stream_claude_sub(provider, lc_messages: list) -> AsyncIterator[str]:
         elif isinstance(m, AIMessage):
             msgs_dicts.append({"role": "assistant", "content": m.content})
 
-    full = ""
     async for token in provider.astream_text(msgs_dicts):
-        full += token
         yield _sse({"type": "token", "content": token})
-    return full
 
 
 @router.post("/chat")
@@ -159,11 +156,14 @@ async def chat(req: ChatRequest, _user=Depends(require_auth)):
             usage_data: dict = {}
 
             if is_claude_sub:
-                # Claude subscription — async generator
+                # Claude subscription — async generator yields SSE strings
                 async for event in _stream_claude_sub(llm, lc_messages):
-                    if isinstance(event, str) and event.startswith("data:"):
-                        full_response += json.loads(event[6:]).get("content", "")
-                        yield event.encode()
+                    try:
+                        payload = json.loads(event[6:].strip())
+                        full_response += payload.get("content", "")
+                    except Exception:
+                        pass
+                    yield event.encode()
 
             elif is_gpt5:
                 # GPT-5 Responses API — non-streaming, simulate progress

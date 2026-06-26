@@ -1,8 +1,10 @@
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 from typing import Optional
 
 
 class Settings(BaseSettings):
+    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
+
     # Auth
     app_password: str = "changeme"
     jwt_secret: str = "please-change-this-secret-key-in-production"
@@ -35,7 +37,6 @@ class Settings(BaseSettings):
     rag_top_k: int = 5
     rag_threshold_chars: int = 8000
 
-    model_config = {"env_file": ".env", "extra": "ignore"}
 
 
 settings = Settings()
