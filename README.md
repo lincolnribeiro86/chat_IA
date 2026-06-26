@@ -1,102 +1,192 @@
-# chat_IA: Interface de Chat com Múltiplos Modelos de IA
+# chat_IA
 
-Este projeto oferece uma interface de chat flexível que permite aos usuários interagir com diversos modelos de IA, tanto locais (via Ollama) quanto remotos (OpenAI e Gemini). A aplicação, construída com Streamlit, facilita a experimentação e comparação entre diferentes modelos, além de oferecer funcionalidades como upload de arquivos para contexto RAG (Retrieval-Augmented Generation) e salvamento/carregamento de conversas.
+Chat com IA — interface web moderna com suporte a múltiplos provedores de LLM, busca na web por tool-calling, visão (imagens), RAG com embeddings e persistência de conversas.
 
-## Funcionalidades Principais
+**Stack:** FastAPI (backend) + React + Vite + TypeScript + Tailwind + shadcn/ui (frontend) + PostgreSQL + Docker.
 
-*   **Suporte a Múltiplos Modelos:** Integração com modelos locais (Ollama), OpenAI e Gemini, permitindo a escolha do modelo diretamente na interface.
-*   **Interface Intuitiva:** Interface de chat amigável construída com Streamlit para fácil interação.
-*   **RAG (Retrieval-Augmented Generation):** Capacidade de anexar arquivos (PDF, DOCX, Excel, TXT, CSV) para fornecer contexto adicional ao modelo de IA.
-*   **Gerenciamento de Conversas:**
-    *   Salvamento e carregamento de conversas em formato JSON para facilitar a retomada de sessões anteriores.
-    *   Opção para salvar o histórico completo ou apenas a última resposta da IA em arquivos de texto.
-*   **Controle de Temperatura:** Ajuste da temperatura do modelo para controlar a criatividade das respostas.
-*   **Animação e Feedback:** Barra de progresso animada durante a geração de respostas e botão para interromper a geração.
-*   **Cache de Memória:** Cache em memória para respostas do LLM, otimizando o desempenho.
-*   **Limpeza de Histórico:** Limpa o histórico de mensagens e a resposta completa na sessão.
-*   **Limite de Tokens:** Exibe o limite de tokens para contexto, com base no modelo selecionado.
+---
 
-## Como Usar
+## Recursos
 
-1.  **Pré-requisitos:**
-    *   Python 3.7+ (o presente projeto foi escrito usando Python 3.9)
-    *   [Ollama](https://ollama.com/) instalado para modelos locais
-    *   Chaves de API da OpenAI e/ou Gemini (se desejar usar esses modelos)
-2.  **Instalação:**
+| Recurso | Detalhe |
+|---|---|
+| **Multi-provedor** | Ollama local/cloud, OpenAI, Gemini, Groq, Anthropic (API Key + assinatura), OpenRouter |
+| **Busca na web** | Tavily + Firecrawl via function-calling automático e botão manual |
+| **Visão** | Anexar prints/imagens (PNG, JPG, WEBP) — modelos vision |
+| **Arquivos** | PDF, DOCX, TXT, MD, CSV, Excel, PY, HTML, etc. |
+| **RAG** | Embeddings + Chroma para documentos grandes (fallback: truncamento) |
+| **Streaming** | SSE token a token com indicador de tool-calling |
+| **Conversas** | Salvar, carregar, exportar (Markdown/JSON), excluir — PostgreSQL |
+| **Auth** | Single-user com senha, JWT httpOnly cookie |
+| **Configuração** | Chaves de API editáveis na UI (sem editar .env) |
+| **Custo** | Badge de tokens e custo estimado por resposta |
+| **Tema** | Claro/escuro |
+| **Docker** | Compose para local (Windows) e VPS |
 
-    ```bash
-    git clone <URL_DO_REPOSITORIO>
-    cd chat_IA
-    pip install -r requirements.txt
-    ```
-3.  **Configuração:**
+---
 
-    *   Crie um arquivo `.env` na raiz do projeto.
-    *   Adicione suas chaves de API (se necessário):
+## Início rápido
 
-        ```
-        OPENAI_API_KEY=SUA_CHAVE_OPENAI
-        GEMINI_API_KEY=SUA_CHAVE_GEMINI
-        ```
-4.  **Execução:**
+### Pré-requisitos
 
-    ```bash
-    streamlit run app.py
-    ```
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/) (Windows/Mac/Linux)
+- Pelo menos uma API key de provedor **ou** [Ollama](https://ollama.com/) rodando localmente
 
-    A aplicação será aberta automaticamente no seu navegador.
-5.  **Utilização:**
-    *   Selecione um modelo de IA na barra lateral.
-    *   Ajuste a temperatura do modelo conforme desejado.
-    *   Anexe arquivos para fornecer contexto adicional (opcional).
-    *   Digite sua mensagem na caixa de chat e pressione Enter.
-    *   Use os botões para salvar conversas, limpar o histórico ou interromper a geração.
+### 1. Clonar e configurar
 
-## Arquitetura
+```bash
+git clone https://github.com/lincolnribeiro86/chat_IA
+cd chat_IA
+cp .env.example .env
+```
 
-O projeto é estruturado da seguinte forma:
+Edite `.env` e preencha no mínimo `APP_PASSWORD` e `JWT_SECRET`. As chaves de API são opcionais — você pode adicioná-las depois pela UI.
 
-*   `app.py`: Arquivo principal do Streamlit, responsável pela interface do usuário e pela lógica de interação com os modelos de IA.
-*   `modelos_tokens.py`: Módulo que contém informações sobre os limites de tokens dos modelos e funções para limitar o texto de acordo com esses limites.
-*   `gerenciador_conversas.py`: Módulo responsável por salvar e carregar conversas em formato JSON.
-    *   **Funcionalidades:**
-        *   Salva conversas em arquivos JSON, incluindo metadados como o modelo utilizado e o timestamp.
-        *   Carrega conversas de arquivos JSON.
-        *   Lista os arquivos de conversa salvos no diretório `conversas_salvas`.
-*   `requirements.txt`: Lista de dependências do projeto.
-*   `.env`: Arquivo para armazenar as chaves de API (não versionado).
-*   `conversas_salvas/`: Diretório onde as conversas salvas em JSON são armazenadas.
+### 2. Subir com Docker
 
-## Dependências
+```bash
+docker compose up --build
+```
 
-*   streamlit
-*   langchain
-*   langchain\_openai
-*   langchain\_ollama
-*   python-dotenv
-*   PyPDF2
-*   docx
-*   openpyxl
-*   pandas
-*   langchain\_google\_genai
+Acesse: **http://localhost** → faça login com a senha do `.env`.
 
-## Variáveis de Ambiente
+> **Windows + Ollama local:** use `OLLAMA_BASE_URL=http://host.docker.internal:11434` no `.env`.
 
-*   `OPENAI_API_KEY`: Chave de API da OpenAI (opcional).
-*   `GEMINI_API_KEY`: Chave de API do Google Gemini (opcional).
+### 3. Rodar sem Docker (desenvolvimento)
 
-## Contribuição
+```bash
+# Backend
+cd backend
+pip install -r requirements.txt
+uvicorn main:app --reload --port 8000
 
-Contribuições são bem-vindas! Sinta-se à vontade para abrir issues ou enviar pull requests.
+# Frontend (outro terminal)
+cd frontend
+npm install
+npm run dev    # http://localhost:5173
+```
+
+---
+
+## Provedores e autenticação
+
+### Ollama (local)
+Instale o [Ollama](https://ollama.com/), baixe modelos (`ollama pull llama3.2`) e configure:
+```
+OLLAMA_BASE_URL=http://localhost:11434
+```
+
+### Ollama Cloud
+```
+OLLAMA_BASE_URL=https://ollama.com
+OLLAMA_API_KEY=<sua-chave>
+```
+
+### OpenAI
+```
+OPENAI_API_KEY=sk-...
+```
+
+### Anthropic (API Key)
+```
+ANTHROPIC_API_KEY=sk-ant-...
+```
+
+### Claude via Assinatura (experimental)
+Requer Claude Code CLI instalado e autenticado:
+```bash
+npm install -g @anthropic-ai/claude-code
+claude setup-token   # copie o token gerado
+```
+```
+CLAUDE_CODE_OAUTH_TOKEN=<token>
+```
+No seletor de modelos, escolha **"Claude (Assinatura)"**.
+
+### Google Gemini
+```
+GEMINI_API_KEY=...
+```
+
+### Groq
+```
+GROQ_API_KEY=gsk_...
+```
+
+### OpenRouter
+```
+OPENROUTER_API_KEY=sk-or-...
+```
+Os modelos do OpenRouter são listados dinamicamente na UI.
+
+### Busca na web
+```
+TAVILY_API_KEY=tvly-...    # recomendado
+FIRECRAWL_API_KEY=fc-...   # complementar (scraping de páginas)
+```
+
+---
+
+## Estrutura do projeto
+
+```
+chat_IA/
+├── docker-compose.yml
+├── .env.example
+├── backend/
+│   ├── main.py              # FastAPI entrypoint
+│   ├── config.py            # Configurações (pydantic-settings)
+│   ├── auth.py              # JWT + cookie
+│   ├── tokens.py            # Limites de contexto e pricing
+│   ├── api/                 # Endpoints: chat (SSE), models, conversations, files, settings
+│   ├── providers/           # Um módulo por provedor + registry
+│   ├── tools/               # web_search (Tavily + Firecrawl)
+│   ├── files/               # readers.py (text/pdf/docx/md/...) + images.py
+│   ├── rag/                 # chunking + Chroma vectorstore
+│   └── persistence/         # PostgreSQL (db.py + repository.py)
+└── frontend/
+    ├── src/
+    │   ├── App.tsx           # Root — auth gate + layout
+    │   ├── pages/Login.tsx
+    │   ├── components/       # ChatWindow, Sidebar, MessageList, MessageInput, ...
+    │   ├── hooks/            # useChat (SSE), useConversations
+    │   ├── lib/api.ts        # Cliente HTTP + SSE
+    │   └── types/            # TypeScript types
+    └── nginx.conf            # Proxy /api → backend + SPA fallback
+```
+
+---
+
+## Configuração via UI
+
+Na barra superior, clique em ⚙️ (Configurações) para:
+- Inserir/trocar chaves de API sem editar o `.env`
+- Alterar a senha de acesso
+- Verificar quais provedores estão configurados (✓/○)
+
+---
+
+## Deploy em VPS
+
+```bash
+# Na VPS
+git clone https://github.com/lincolnribeiro86/chat_IA
+cd chat_IA
+cp .env.example .env
+nano .env   # preencher credenciais
+docker compose up -d --build
+```
+
+Para HTTPS, coloque um reverse proxy (Caddy/nginx) na frente apontando para a porta 80.
+
+---
+
+## Variáveis de ambiente
+
+Veja [`.env.example`](.env.example) para a lista completa comentada.
+
+---
 
 ## Licença
 
-[MIT](LICENSE)
-
-## Notas Adicionais
-
-*   Certifique-se de ter o Ollama instalado e configurado corretamente para usar os modelos locais.
-*   As chaves de API da OpenAI e Gemini são opcionais, mas necessárias para usar esses modelos.
-*   O arquivo `.env` não deve ser versionado para proteger suas chaves de API.
-*   O projeto utiliza cache em memória para otimizar o desempenho, mas você pode desativá-lo se necessário.
-*   As conversas salvas são armazenadas no diretório `conversas_salvas/`.
+MIT

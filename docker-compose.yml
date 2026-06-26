@@ -1,0 +1,54 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_NAME:-chatia}
+      POSTGRES_USER: ${DB_USER:-chatia}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-chatia}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-chatia}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build: ./backend
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      DB_HOST: postgres
+    volumes:
+      - chroma_data:/app/data/chroma
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "8000:8000"   # expose for local dev; comment out in production behind nginx
+
+  frontend:
+    build: ./frontend
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+
+  # Optional: run Ollama as a container (use profile: ollama)
+  # On Windows with Docker Desktop you can also use host Ollama via
+  # OLLAMA_BASE_URL=http://host.docker.internal:11434 in .env
+  ollama:
+    image: ollama/ollama:latest
+    restart: unless-stopped
+    profiles: ["ollama"]
+    volumes:
+      - ollama_data:/root/.ollama
+    ports:
+      - "11434:11434"
+
+volumes:
+  postgres_data:
+  chroma_data:
+  ollama_data:

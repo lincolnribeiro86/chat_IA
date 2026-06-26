@@ -113,55 +113,35 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-# VS Code
+# IDE
 .vscode/
-
-# PyCharm
 .idea/
 
-# Arquivos específicos do projeto
-*.docx
-*.txt
-*.pdf
-conversas/
-Conversas*
-conversas*
-conversas_salvas/
-conversations.db
+# Node / Frontend build
+node_modules/
+frontend/dist/
+frontend/node_modules/
+.npm
+
+# Backend data (Chroma, uploads)
+backend/data/
 *.db
 *.sqlite
-*.sql
+*.sqlite3
 
-# Arquivos temporários
+# Temporary files
 temp/
 tmp/
 *.tmp
 *.temp
+conversas/
+conversas_salvas/
+conversas_antigas/
 
 # Logs
 *.log
 logs/
 
-# Arquivos de mídia
-*.mp4
-*.mp3
-*.avi
-*.mov
-*.wav
-*.jpg
-*.jpeg
-*.png
-*.gif
-*.svg
-
-# Arquivos do YouTube
-youtube/
-
-# Pasta de IAs específicas
-ia/
-
-# Arquivos de texto de conversas antigas
-ultima_resposta.txt
-conversa_completa.txt
-gpt5.txt
-trecho_extraido.docx
+# OS
+.DS_Store
+Thumbs.db
