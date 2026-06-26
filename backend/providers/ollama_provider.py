@@ -1,23 +1,32 @@
-"""Ollama provider — local and cloud."""
-from langchain_ollama import ChatOllama
+"""Ollama provider — local (ChatOllama) ou Cloud (OpenAI-compatible)."""
 import httpx
 
 
-def build_ollama(model_id: str, base_url: str, api_key: str | None = None) -> ChatOllama:
-    kwargs: dict = {"model": model_id, "base_url": base_url}
+def build_ollama(model_id: str, base_url: str, api_key: str | None = None):
     if api_key:
-        # Ollama Cloud requires Bearer auth
-        kwargs["headers"] = {"Authorization": f"Bearer {api_key}"}
-    return ChatOllama(**kwargs)
+        # Ollama Cloud: usa endpoint OpenAI-compatível
+        from langchain_openai import ChatOpenAI
+        cloud_url = "https://ollama.com/v1"
+        return ChatOpenAI(
+            model=model_id,
+            api_key=api_key,
+            base_url=cloud_url,
+            temperature=0.5,
+            streaming=True,
+        )
+    else:
+        # Ollama local
+        from langchain_ollama import ChatOllama
+        return ChatOllama(model=model_id, base_url=base_url)
 
 
 async def fetch_ollama_models(base_url: str, api_key: str | None = None) -> list[dict]:
-    """Return local/cloud Ollama models from /api/tags."""
-    headers = {}
+    """Busca modelos do Ollama local via /api/tags. Cloud usa catálogo estático."""
     if api_key:
-        headers["Authorization"] = f"Bearer {api_key}"
+        # Ollama Cloud não tem endpoint de listagem pública — usa catálogo estático
+        return []
     try:
-        async with httpx.AsyncClient(timeout=5, headers=headers) as client:
+        async with httpx.AsyncClient(timeout=5) as client:
             resp = await client.get(f"{base_url.rstrip('/')}/api/tags")
             data = resp.json()
         models = []
@@ -27,8 +36,8 @@ async def fetch_ollama_models(base_url: str, api_key: str | None = None) -> list
                 "id": name,
                 "name": name,
                 "provider": "ollama",
-                "supports_vision": any(tag in name for tag in ["llava", "moondream", "bakllava", "minicpm-v", "llama3.2"]),
-                "supports_tools": any(tag in name for tag in ["llama3", "qwen", "mistral", "granite"]),
+                "supports_vision": any(t in name for t in ["llava", "moondream", "bakllava", "minicpm-v", "llama3.2-vision", "qwen3-vl", "qwen2.5vl"]),
+                "supports_tools": any(t in name for t in ["llama3", "qwen", "mistral", "granite", "phi"]),
                 "context_window": 8192,
             })
         return models

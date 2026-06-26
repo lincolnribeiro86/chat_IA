@@ -24,7 +24,7 @@ class Settings(BaseSettings):
     groq_api_key: Optional[str] = None
     openrouter_api_key: Optional[str] = None
     deepseek_api_key: Optional[str] = None
-    ollama_base_url: str = "http://localhost:11434"
+    ollama_base_url: str = "https://ollama.com"
     ollama_api_key: Optional[str] = None
     tavily_api_key: Optional[str] = None
     firecrawl_api_key: Optional[str] = None
