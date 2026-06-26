@@ -1,7 +1,22 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { modelsApi } from '@/lib/api'
 import type { ModelInfo, ProviderGroup } from '@/types'
-import { ChevronDown, Cpu } from 'lucide-react'
+import { ChevronDown, Cpu, Star } from 'lucide-react'
+
+const STORAGE_KEY = 'chatia_fav_models'
+
+function loadFavs(): Set<string> {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY)
+    return raw ? new Set(JSON.parse(raw)) : new Set()
+  } catch {
+    return new Set()
+  }
+}
+
+function saveFavs(favs: Set<string>) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify([...favs]))
+}
 
 interface Props {
   selectedId: string
@@ -11,12 +26,25 @@ interface Props {
 export function ModelSelector({ selectedId, onSelect }: Props) {
   const [providers, setProviders] = useState<ProviderGroup[]>([])
   const [open, setOpen] = useState(false)
+  const [favs, setFavs] = useState<Set<string>>(loadFavs)
 
   useEffect(() => {
     modelsApi.list().then(r => setProviders(r.providers)).catch(() => {})
   }, [])
 
-  const selectedModel = providers.flatMap(p => p.models).find(m => m.id === selectedId)
+  const toggleFav = useCallback((e: React.MouseEvent, modelId: string) => {
+    e.stopPropagation()
+    setFavs(prev => {
+      const next = new Set(prev)
+      next.has(modelId) ? next.delete(modelId) : next.add(modelId)
+      saveFavs(next)
+      return next
+    })
+  }, [])
+
+  const allModels = providers.flatMap(p => p.models)
+  const selectedModel = allModels.find(m => m.id === selectedId)
+  const favModels = allModels.filter(m => favs.has(m.id))
 
   return (
     <div className="relative">
@@ -25,7 +53,8 @@ export function ModelSelector({ selectedId, onSelect }: Props) {
         className="flex items-center gap-2 text-sm px-3 py-1.5 rounded-md border bg-background hover:bg-accent transition-colors w-full"
       >
         <Cpu className="h-4 w-4 text-muted-foreground shrink-0" />
-        <span className="flex-1 text-left truncate">
+        <span className="flex-1 text-left truncate flex items-center gap-1.5">
+          {favs.has(selectedId) && <Star className="h-3 w-3 fill-yellow-400 text-yellow-400 shrink-0" />}
           {selectedModel?.name ?? 'Selecionar modelo...'}
         </span>
         <ChevronDown className="h-4 w-4 text-muted-foreground shrink-0" />
@@ -34,34 +63,88 @@ export function ModelSelector({ selectedId, onSelect }: Props) {
       {open && (
         <>
           <div className="fixed inset-0 z-10" onClick={() => setOpen(false)} />
-          <div className="absolute top-full left-0 mt-1 w-72 max-h-96 overflow-y-auto z-20 rounded-md border bg-background shadow-lg">
+          <div className="absolute top-full left-0 mt-1 w-80 max-h-[28rem] overflow-y-auto z-20 rounded-md border bg-background shadow-lg">
+
+            {/* Seção de favoritos */}
+            {favModels.length > 0 && (
+              <div>
+                <div className="px-3 py-1.5 text-xs font-semibold text-yellow-500 sticky top-0 bg-background border-b flex items-center gap-1">
+                  <Star className="h-3 w-3 fill-yellow-400" /> Favoritos
+                </div>
+                {favModels.map(model => (
+                  <ModelRow
+                    key={`fav-${model.id}`}
+                    model={model}
+                    selectedId={selectedId}
+                    isFav={true}
+                    onSelect={() => { onSelect(model); setOpen(false) }}
+                    onToggleFav={toggleFav}
+                  />
+                ))}
+              </div>
+            )}
+
+            {/* Grupos por provedor */}
             {providers.map(prov => (
               <div key={prov.id}>
                 <div className="px-3 py-1.5 text-xs font-semibold text-muted-foreground sticky top-0 bg-background border-b">
                   {prov.name}
                 </div>
                 {prov.models.map(model => (
-                  <button
+                  <ModelRow
                     key={model.id}
-                    onClick={() => { onSelect(model); setOpen(false) }}
-                    className={`w-full text-left px-3 py-2 text-sm hover:bg-accent transition-colors flex items-center justify-between gap-2 ${model.id === selectedId ? 'bg-accent' : ''}`}
-                  >
-                    <span className="truncate">{model.name}</span>
-                    <div className="flex gap-1 shrink-0">
-                      {model.supports_vision && (
-                        <span className="text-[10px] bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 px-1 rounded">👁</span>
-                      )}
-                      {model.supports_tools && (
-                        <span className="text-[10px] bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 px-1 rounded">🔧</span>
-                      )}
-                    </div>
-                  </button>
+                    model={model}
+                    selectedId={selectedId}
+                    isFav={favs.has(model.id)}
+                    onSelect={() => { onSelect(model); setOpen(false) }}
+                    onToggleFav={toggleFav}
+                  />
                 ))}
               </div>
             ))}
+
           </div>
         </>
       )}
     </div>
+  )
+}
+
+interface RowProps {
+  model: ModelInfo
+  selectedId: string
+  isFav: boolean
+  onSelect: () => void
+  onToggleFav: (e: React.MouseEvent, id: string) => void
+}
+
+function ModelRow({ model, selectedId, isFav, onSelect, onToggleFav }: RowProps) {
+  return (
+    <button
+      onClick={onSelect}
+      className={`w-full text-left px-3 py-2 text-sm hover:bg-accent transition-colors flex items-center gap-2 group ${model.id === selectedId ? 'bg-accent' : ''}`}
+    >
+      {/* Estrela */}
+      <span
+        role="button"
+        onClick={e => onToggleFav(e, model.id)}
+        className={`shrink-0 transition-colors ${isFav ? 'text-yellow-400' : 'text-muted-foreground/30 group-hover:text-muted-foreground/60'}`}
+        title={isFav ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}
+      >
+        <Star className={`h-3.5 w-3.5 ${isFav ? 'fill-yellow-400' : ''}`} />
+      </span>
+
+      <span className="truncate flex-1">{model.name}</span>
+
+      {/* Badges de capacidade */}
+      <div className="flex gap-1 shrink-0">
+        {model.supports_vision && (
+          <span className="text-[10px] bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 px-1 rounded">👁</span>
+        )}
+        {model.supports_tools && (
+          <span className="text-[10px] bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 px-1 rounded">🔧</span>
+        )}
+      </div>
+    </button>
   )
 }

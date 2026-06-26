@@ -51,8 +51,10 @@ CATALOG: list[dict] = [
     {"id": "gemini-1.5-flash",            "name": "Gemini 1.5 Flash",         "provider": "gemini",      "supports_vision": True,  "supports_tools": True,  "context_window": 1000000},
     {"id": "gemini-1.5-pro",              "name": "Gemini 1.5 Pro",           "provider": "gemini",      "supports_vision": True,  "supports_tools": True,  "context_window": 2097152},
     # DeepSeek API (api.deepseek.com)
-    {"id": "deepseek-chat",     "name": "DeepSeek V3",       "provider": "deepseek", "supports_vision": False, "supports_tools": True,  "context_window": 64000},
-    {"id": "deepseek-reasoner", "name": "DeepSeek R1",       "provider": "deepseek", "supports_vision": False, "supports_tools": False, "context_window": 64000},
+    {"id": "deepseek-chat",     "name": "DeepSeek V3",         "provider": "deepseek", "supports_vision": False, "supports_tools": True,  "context_window": 64000},
+    {"id": "deepseek-reasoner", "name": "DeepSeek R1",         "provider": "deepseek", "supports_vision": False, "supports_tools": False, "context_window": 64000},
+    {"id": "deepseek-v4-flash", "name": "DeepSeek V4 Flash",   "provider": "deepseek", "supports_vision": True,  "supports_tools": True,  "context_window": 128000},
+    {"id": "deepseek-v4-pro",   "name": "DeepSeek V4 Pro",     "provider": "deepseek", "supports_vision": True,  "supports_tools": True,  "context_window": 128000},
     # Groq
     {"id": "deepseek-r1-distill-llama-70b",                  "name": "DeepSeek R1 Llama 70B (Groq)", "provider": "groq", "supports_vision": False, "supports_tools": False, "context_window": 128000},
     {"id": "meta-llama/llama-4-maverick-17b-128e-instruct",  "name": "Llama 4 Maverick (Groq)",      "provider": "groq", "supports_vision": True,  "supports_tools": True,  "context_window": 131072},
