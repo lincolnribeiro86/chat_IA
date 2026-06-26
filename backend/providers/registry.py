@@ -8,46 +8,46 @@ from config import settings
 
 CATALOG: list[dict] = [
     # Ollama — Geral
-    {"id": "llama4:16x17b",               "name": "Llama 4 16x17B",           "provider": "ollama", "supports_vision": True,  "supports_tools": True,  "context_window": 128000},
-    {"id": "llama4:128x17b",              "name": "Llama 4 128x17B",          "provider": "ollama", "supports_vision": True,  "supports_tools": True,  "context_window": 128000},
-    {"id": "llama3.3:70b",                "name": "Llama 3.3 70B",            "provider": "ollama", "supports_vision": False, "supports_tools": True,  "context_window": 128000},
-    {"id": "llama3.2:3b",                 "name": "Llama 3.2 3B",             "provider": "ollama", "supports_vision": False, "supports_tools": True,  "context_window": 8192},
-    {"id": "llama3.2-vision:11b",         "name": "Llama 3.2 Vision 11B",    "provider": "ollama", "supports_vision": True,  "supports_tools": False, "context_window": 8192},
-    {"id": "qwen3:8b",                    "name": "Qwen3 8B",                  "provider": "ollama", "supports_vision": False, "supports_tools": True,  "context_window": 32768},
-    {"id": "qwen3:32b",                   "name": "Qwen3 32B",                 "provider": "ollama", "supports_vision": False, "supports_tools": True,  "context_window": 32768},
-    {"id": "qwen3.5:8b",                  "name": "Qwen3.5 8B",               "provider": "ollama", "supports_vision": True,  "supports_tools": True,  "context_window": 32768},
-    {"id": "qwen3.5:32b",                 "name": "Qwen3.5 32B",              "provider": "ollama", "supports_vision": True,  "supports_tools": True,  "context_window": 32768},
-    {"id": "qwen3.6:27b",                 "name": "Qwen3.6 27B",              "provider": "ollama", "supports_vision": True,  "supports_tools": True,  "context_window": 32768},
-    {"id": "mistral-small3.2:24b",        "name": "Mistral Small 3.2 24B",   "provider": "ollama", "supports_vision": True,  "supports_tools": True,  "context_window": 32768},
-    {"id": "gemma4:12b",                  "name": "Gemma4 12B",               "provider": "ollama", "supports_vision": True,  "supports_tools": True,  "context_window": 128000},
-    {"id": "gemma4:27b",                  "name": "Gemma4 27B",               "provider": "ollama", "supports_vision": True,  "supports_tools": True,  "context_window": 128000},
+    {"id": "llama4:scout",                "name": "Llama 4 Scout (16x17B)",   "provider": "ollama", "supports_vision": True,  "supports_tools": True,  "context_window": 10000000},
+    {"id": "llama4:maverick",             "name": "Llama 4 Maverick (128x17B)","provider": "ollama","supports_vision": True,  "supports_tools": True,  "context_window": 1000000},
+    {"id": "llama3.3:70b",               "name": "Llama 3.3 70B",            "provider": "ollama", "supports_vision": False, "supports_tools": True,  "context_window": 128000},
+    {"id": "llama3.2:3b",                "name": "Llama 3.2 3B",             "provider": "ollama", "supports_vision": False, "supports_tools": True,  "context_window": 128000},
+    {"id": "llama3.2-vision:11b",        "name": "Llama 3.2 Vision 11B",     "provider": "ollama", "supports_vision": True,  "supports_tools": False, "context_window": 128000},
+    {"id": "gemma4:12b",                 "name": "Gemma4 12B",               "provider": "ollama", "supports_vision": True,  "supports_tools": True,  "context_window": 128000},
+    {"id": "gemma4:26b",                 "name": "Gemma4 26B",               "provider": "ollama", "supports_vision": True,  "supports_tools": True,  "context_window": 128000},
+    {"id": "gemma4:31b",                 "name": "Gemma4 31B",               "provider": "ollama", "supports_vision": True,  "supports_tools": True,  "context_window": 256000},
+    {"id": "mistral-small3.2:24b",       "name": "Mistral Small 3.2 24B",    "provider": "ollama", "supports_vision": True,  "supports_tools": True,  "context_window": 128000},
+    {"id": "phi4:14b",                   "name": "Phi-4 14B",                "provider": "ollama", "supports_vision": False, "supports_tools": True,  "context_window": 16384},
+    {"id": "phi4-mini:3.8b",             "name": "Phi-4 Mini 3.8B",          "provider": "ollama", "supports_vision": False, "supports_tools": True,  "context_window": 16384},
+    {"id": "phi4-reasoning:14b",         "name": "Phi-4 Reasoning 14B",      "provider": "ollama", "supports_vision": False, "supports_tools": False, "context_window": 16384},
+    # Ollama — Qwen3
+    {"id": "qwen3:8b",                   "name": "Qwen3 8B",                 "provider": "ollama", "supports_vision": False, "supports_tools": True,  "context_window": 32768},
+    {"id": "qwen3:14b",                  "name": "Qwen3 14B",                "provider": "ollama", "supports_vision": False, "supports_tools": True,  "context_window": 32768},
+    {"id": "qwen3:32b",                  "name": "Qwen3 32B",                "provider": "ollama", "supports_vision": False, "supports_tools": True,  "context_window": 32768},
+    {"id": "qwen3.5:9b",                 "name": "Qwen3.5 9B",               "provider": "ollama", "supports_vision": False, "supports_tools": True,  "context_window": 256000},
+    {"id": "qwen3.5:27b",                "name": "Qwen3.5 27B",              "provider": "ollama", "supports_vision": False, "supports_tools": True,  "context_window": 256000},
+    {"id": "qwen3.5:35b",                "name": "Qwen3.5 35B",              "provider": "ollama", "supports_vision": False, "supports_tools": True,  "context_window": 256000},
+    {"id": "qwen3.6:27b",                "name": "Qwen3.6 27B",              "provider": "ollama", "supports_vision": True,  "supports_tools": True,  "context_window": 32768},
     # Ollama — Código
-    {"id": "qwen2.5-coder:7b",            "name": "Qwen2.5 Coder 7B",        "provider": "ollama", "supports_vision": False, "supports_tools": True,  "context_window": 32768},
-    {"id": "qwen2.5-coder:32b",           "name": "Qwen2.5 Coder 32B",       "provider": "ollama", "supports_vision": False, "supports_tools": True,  "context_window": 32768},
-    {"id": "qwen3-coder:30b",             "name": "Qwen3 Coder 30B",         "provider": "ollama", "supports_vision": False, "supports_tools": True,  "context_window": 32768},
-    {"id": "deepseek-coder-v2:16b",       "name": "DeepSeek Coder V2 16B",   "provider": "ollama", "supports_vision": False, "supports_tools": False, "context_window": 128000},
+    {"id": "qwen2.5-coder:7b",           "name": "Qwen2.5 Coder 7B",        "provider": "ollama", "supports_vision": False, "supports_tools": True,  "context_window": 32768},
+    {"id": "qwen2.5-coder:32b",          "name": "Qwen2.5 Coder 32B",       "provider": "ollama", "supports_vision": False, "supports_tools": True,  "context_window": 32768},
+    {"id": "qwen3-coder:30b",            "name": "Qwen3 Coder 30B",         "provider": "ollama", "supports_vision": False, "supports_tools": True,  "context_window": 256000},
+    {"id": "deepseek-coder-v2:16b",      "name": "DeepSeek Coder V2 16B",   "provider": "ollama", "supports_vision": False, "supports_tools": False, "context_window": 128000},
+    {"id": "devstral:24b",               "name": "Devstral 24B",             "provider": "ollama", "supports_vision": False, "supports_tools": True,  "context_window": 128000},
     # Ollama — Raciocínio
-    {"id": "deepseek-r1:8b",              "name": "DeepSeek R1 8B",           "provider": "ollama", "supports_vision": False, "supports_tools": True,  "context_window": 32768},
-    {"id": "deepseek-r1:14b",             "name": "DeepSeek R1 14B",          "provider": "ollama", "supports_vision": False, "supports_tools": True,  "context_window": 32768},
-    {"id": "deepseek-r1:32b",             "name": "DeepSeek R1 32B",          "provider": "ollama", "supports_vision": False, "supports_tools": True,  "context_window": 32768},
-    {"id": "deepseek-v3.2",               "name": "DeepSeek V3.2",            "provider": "ollama", "supports_vision": False, "supports_tools": True,  "context_window": 128000},
-    {"id": "qwq:32b",                     "name": "QwQ 32B",                  "provider": "ollama", "supports_vision": False, "supports_tools": True,  "context_window": 32768},
+    {"id": "deepseek-r1:7b",             "name": "DeepSeek R1 7B",           "provider": "ollama", "supports_vision": False, "supports_tools": False, "context_window": 128000},
+    {"id": "deepseek-r1:14b",            "name": "DeepSeek R1 14B",          "provider": "ollama", "supports_vision": False, "supports_tools": False, "context_window": 128000},
+    {"id": "deepseek-r1:32b",            "name": "DeepSeek R1 32B",          "provider": "ollama", "supports_vision": False, "supports_tools": False, "context_window": 128000},
+    {"id": "deepseek-r1:70b",            "name": "DeepSeek R1 70B",          "provider": "ollama", "supports_vision": False, "supports_tools": False, "context_window": 128000},
+    {"id": "deepseek-v3.2",              "name": "DeepSeek V3.2",            "provider": "ollama", "supports_vision": False, "supports_tools": True,  "context_window": 128000},
+    {"id": "qwq:32b",                    "name": "QwQ 32B",                  "provider": "ollama", "supports_vision": False, "supports_tools": True,  "context_window": 32768},
+    {"id": "magistral:24b",              "name": "Magistral 24B",            "provider": "ollama", "supports_vision": False, "supports_tools": True,  "context_window": 131072},
     # Ollama — Visão
-    {"id": "qwen3-vl:7b",                 "name": "Qwen3 VL 7B",              "provider": "ollama", "supports_vision": True,  "supports_tools": True,  "context_window": 32768},
-    {"id": "qwen2.5vl:7b",               "name": "Qwen2.5 VL 7B",            "provider": "ollama", "supports_vision": True,  "supports_tools": False, "context_window": 32768},
-    {"id": "llava:7b",                    "name": "LLaVA 7B",                 "provider": "ollama", "supports_vision": True,  "supports_tools": False, "context_window": 4096},
-    {"id": "minicpm-v:8b",                "name": "MiniCPM-V 8B",             "provider": "ollama", "supports_vision": True,  "supports_tools": False, "context_window": 8192},
-    # OpenAI
-    {"id": "gpt-4o",                      "name": "GPT-4o",                    "provider": "openai",      "supports_vision": True,  "supports_tools": True,  "context_window": 128000},
-    {"id": "gpt-4o-mini-2024-07-18",      "name": "GPT-4o Mini",              "provider": "openai",      "supports_vision": True,  "supports_tools": True,  "context_window": 128000},
-    {"id": "gpt-4.1-2025-04-14",          "name": "GPT-4.1",                  "provider": "openai",      "supports_vision": True,  "supports_tools": True,  "context_window": 1047576},
-    {"id": "gpt-4.1-mini-2025-04-14",     "name": "GPT-4.1 Mini",            "provider": "openai",      "supports_vision": True,  "supports_tools": True,  "context_window": 1047576},
-    {"id": "gpt-4.1-nano-2025-04-14",     "name": "GPT-4.1 Nano",            "provider": "openai",      "supports_vision": True,  "supports_tools": True,  "context_window": 1047576},
-    {"id": "gpt-4-turbo",                 "name": "GPT-4 Turbo",              "provider": "openai",      "supports_vision": True,  "supports_tools": True,  "context_window": 128000},
-    {"id": "gpt-4",                       "name": "GPT-4",                     "provider": "openai",      "supports_vision": False, "supports_tools": True,  "context_window": 32000},
-    {"id": "gpt-3.5-turbo",              "name": "GPT-3.5 Turbo",             "provider": "openai",      "supports_vision": False, "supports_tools": True,  "context_window": 16385},
-    {"id": "o3-2025-04-16",               "name": "o3",                        "provider": "openai",      "supports_vision": False, "supports_tools": True,  "context_window": 200000},
-    {"id": "o4-mini-2025-04-16",          "name": "o4 Mini",                  "provider": "openai",      "supports_vision": False, "supports_tools": True,  "context_window": 200000},
+    {"id": "qwen3-vl:7b",               "name": "Qwen3 VL 7B",              "provider": "ollama", "supports_vision": True,  "supports_tools": True,  "context_window": 32768},
+    {"id": "qwen2.5vl:7b",              "name": "Qwen2.5 VL 7B",            "provider": "ollama", "supports_vision": True,  "supports_tools": False, "context_window": 32768},
+    {"id": "llava:7b",                  "name": "LLaVA 7B",                 "provider": "ollama", "supports_vision": True,  "supports_tools": False, "context_window": 4096},
+    {"id": "minicpm-v:8b",              "name": "MiniCPM-V 8B",             "provider": "ollama", "supports_vision": True,  "supports_tools": False, "context_window": 8192},
+    # OpenAI — GPT-5
     {"id": "gpt-5.5",                      "name": "GPT-5.5 ⭐",               "provider": "openai_gpt5", "supports_vision": True,  "supports_tools": True,  "context_window": 256000},
     {"id": "gpt-5.5-pro",                 "name": "GPT-5.5 Pro",              "provider": "openai_gpt5", "supports_vision": True,  "supports_tools": True,  "context_window": 256000},
     {"id": "gpt-5.4",                     "name": "GPT-5.4",                  "provider": "openai_gpt5", "supports_vision": True,  "supports_tools": True,  "context_window": 128000},
@@ -100,7 +100,12 @@ def build_provider(model_id: str, api_keys: dict[str, str] = None, temperature: 
 
     info = _CATALOG_BY_ID.get(model_id)
     if not info:
-        raise ValueError(f"Unknown model: {model_id}")
+        # Fallback: qualquer modelo não catalogado é tratado como Ollama
+        # (modelos puxados localmente aparecem no fetch dinâmico mas não no catálogo)
+        from providers.ollama_provider import build_ollama
+        ollama_url = key("ollama_base_url") or cfg.ollama_base_url
+        ollama_key = key("ollama_api_key")
+        return build_ollama(model_id, ollama_url, ollama_key)
 
     provider = info["provider"]
 
