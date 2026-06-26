@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect, useRef } from 'react'
 import { MessageList } from './MessageList'
 import { MessageInput } from './MessageInput'
 import { ModelSelector } from './ModelSelector'
@@ -8,7 +8,7 @@ import { conversationsApi, auth } from '@/lib/api'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { LogOut, Moon, Sun, Sliders } from 'lucide-react'
-import type { ModelInfo, FileAttachment, Conversation } from '@/types'
+import type { ModelInfo, FileAttachment } from '@/types'
 
 interface Props {
   currentConvId: string | null
@@ -42,6 +42,29 @@ export function ChatWindow({
     forceWebSearch,
   })
 
+  // Limpa o chat quando o sidebar clica em "Nova conversa" (currentConvId → null)
+  const prevConvId = useRef(currentConvId)
+  useEffect(() => {
+    if (prevConvId.current !== null && currentConvId === null) {
+      clear()
+    }
+    prevConvId.current = currentConvId
+  }, [currentConvId, clear])
+
+  // Carrega a conversa quando selecionada no sidebar
+  useEffect(() => {
+    if (currentConvId) {
+      conversationsApi.load(currentConvId).then(data => {
+        const msgs = (data.messages as Array<{ role: string; content: string }>).map((m, i) => ({
+          id: `loaded-${i}`,
+          role: m.role as 'user' | 'assistant',
+          content: m.content,
+        }))
+        loadMessages(msgs)
+      }).catch(() => {})
+    }
+  }, [currentConvId, loadMessages])
+
   const handleSend = useCallback(async (content: string, files: FileAttachment[]) => {
     await append(content, files)
 
@@ -62,18 +85,6 @@ export function ChatWindow({
       } catch { /* ignore */ }
     }
   }, [append, messages, currentConvId, selectedModel.id, onConvSaved])
-
-  const handleLoadConversation = useCallback(async (conv: Conversation) => {
-    try {
-      const data = await conversationsApi.load(conv.id)
-      const msgs = (data.messages as Array<{ role: string; content: string }>).map((m, i) => ({
-        id: `loaded-${i}`,
-        role: m.role as 'user' | 'assistant',
-        content: m.content,
-      }))
-      loadMessages(msgs)
-    } catch { /* ignore */ }
-  }, [loadMessages])
 
   const handleNew = useCallback(() => {
     clear()

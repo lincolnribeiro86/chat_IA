@@ -10,91 +10,82 @@ logger = logging.getLogger(__name__)
 # ── Conversations ─────────────────────────────────────────────────────────────
 
 def list_conversations() -> list[dict]:
-    if not db_available():
-        return []
-    try:
-        with get_conn() as conn:
-            with conn.cursor() as cur:
-                cur.execute(
-                    "SELECT id, title, model_used, updated_at FROM conversations ORDER BY updated_at DESC"
-                )
-                rows = cur.fetchall()
-        return [
-            {"id": str(r[0]), "title": r[1], "model_used": r[2],
-             "updated_at": r[3].strftime("%Y-%m-%d %H:%M")}
-            for r in rows
-        ]
-    except Exception as e:
-        logger.error(f"list_conversations: {e}")
-        return []
+    if db_available():
+        try:
+            with get_conn() as conn:
+                with conn.cursor() as cur:
+                    cur.execute(
+                        "SELECT id, title, model_used, updated_at FROM conversations ORDER BY updated_at DESC"
+                    )
+                    rows = cur.fetchall()
+            return [{"id": str(r[0]), "title": r[1], "model_used": r[2],
+                     "updated_at": r[3].strftime("%Y-%m-%d %H:%M")} for r in rows]
+        except Exception as e:
+            logger.error(f"list_conversations DB: {e}")
+    return local_store.conv_list()
 
 
 def save_conversation(messages: list, model_used: str, title: str) -> Optional[str]:
-    if not db_available():
-        return None
-    try:
-        with get_conn() as conn:
-            with conn.cursor() as cur:
-                cur.execute(
-                    "INSERT INTO conversations (title, model_used, messages) VALUES (%s,%s,%s) RETURNING id",
-                    (title[:255], model_used, json.dumps(messages)),
-                )
-                row = cur.fetchone()
-            conn.commit()
-        return str(row[0]) if row else None
-    except Exception as e:
-        logger.error(f"save_conversation: {e}")
-        return None
+    if db_available():
+        try:
+            with get_conn() as conn:
+                with conn.cursor() as cur:
+                    cur.execute(
+                        "INSERT INTO conversations (title, model_used, messages) VALUES (%s,%s,%s) RETURNING id",
+                        (title[:255], model_used, json.dumps(messages)),
+                    )
+                    row = cur.fetchone()
+                conn.commit()
+            return str(row[0]) if row else None
+        except Exception as e:
+            logger.error(f"save_conversation DB: {e}")
+    return local_store.conv_save(messages, model_used, title)
 
 
 def load_conversation(conv_id: str) -> Optional[dict]:
-    if not db_available():
-        return None
-    try:
-        with get_conn() as conn:
-            with conn.cursor() as cur:
-                cur.execute(
-                    "SELECT title, model_used, messages FROM conversations WHERE id=%s",
-                    (conv_id,),
-                )
-                row = cur.fetchone()
-        if not row:
-            return None
-        return {"title": row[0], "model_used": row[1], "messages": row[2]}
-    except Exception as e:
-        logger.error(f"load_conversation: {e}")
-        return None
+    if db_available():
+        try:
+            with get_conn() as conn:
+                with conn.cursor() as cur:
+                    cur.execute(
+                        "SELECT title, model_used, messages FROM conversations WHERE id=%s",
+                        (conv_id,),
+                    )
+                    row = cur.fetchone()
+            if row:
+                return {"title": row[0], "model_used": row[1], "messages": row[2]}
+        except Exception as e:
+            logger.error(f"load_conversation DB: {e}")
+    return local_store.conv_load(conv_id)
 
 
 def update_conversation(conv_id: str, messages: list, model_used: str) -> bool:
-    if not db_available():
-        return False
-    try:
-        with get_conn() as conn:
-            with conn.cursor() as cur:
-                cur.execute(
-                    "UPDATE conversations SET messages=%s, model_used=%s WHERE id=%s",
-                    (json.dumps(messages), model_used, conv_id),
-                )
-            conn.commit()
-        return True
-    except Exception as e:
-        logger.error(f"update_conversation: {e}")
-        return False
+    if db_available():
+        try:
+            with get_conn() as conn:
+                with conn.cursor() as cur:
+                    cur.execute(
+                        "UPDATE conversations SET messages=%s, model_used=%s WHERE id=%s",
+                        (json.dumps(messages), model_used, conv_id),
+                    )
+                conn.commit()
+            return True
+        except Exception as e:
+            logger.error(f"update_conversation DB: {e}")
+    return local_store.conv_update(conv_id, messages, model_used)
 
 
 def delete_conversation(conv_id: str) -> bool:
-    if not db_available():
-        return False
-    try:
-        with get_conn() as conn:
-            with conn.cursor() as cur:
-                cur.execute("DELETE FROM conversations WHERE id=%s", (conv_id,))
-            conn.commit()
-        return True
-    except Exception as e:
-        logger.error(f"delete_conversation: {e}")
-        return False
+    if db_available():
+        try:
+            with get_conn() as conn:
+                with conn.cursor() as cur:
+                    cur.execute("DELETE FROM conversations WHERE id=%s", (conv_id,))
+                conn.commit()
+            return True
+        except Exception as e:
+            logger.error(f"delete_conversation DB: {e}")
+    return local_store.conv_delete(conv_id)
 
 
 # ── App settings ──────────────────────────────────────────────────────────────

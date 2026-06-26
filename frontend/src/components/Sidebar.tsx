@@ -11,12 +11,16 @@ interface Props {
   currentId: string | null
   onSelect: (conv: Conversation) => void
   onNew: () => void
+  onRegisterRefresh?: (fn: () => void) => void
 }
 
-export function Sidebar({ currentId, onSelect, onNew }: Props) {
+export function Sidebar({ currentId, onSelect, onNew, onRegisterRefresh }: Props) {
   const { conversations, loading, refresh, remove, exportConv } = useConversations()
 
-  useEffect(() => { refresh() }, [refresh])
+  useEffect(() => {
+    refresh()
+    onRegisterRefresh?.(refresh)
+  }, [refresh, onRegisterRefresh])
 
   return (
     <aside className="w-64 border-r bg-card flex flex-col h-full shrink-0">

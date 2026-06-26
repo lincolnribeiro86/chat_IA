@@ -1,9 +1,8 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { auth } from '@/lib/api'
 import { Login } from '@/pages/Login'
 import { Sidebar } from '@/components/Sidebar'
 import { ChatWindow } from '@/components/ChatWindow'
-import type { Conversation } from '@/types'
 
 export default function App() {
   const [authenticated, setAuthenticated] = useState<boolean | null>(null)
@@ -12,6 +11,7 @@ export default function App() {
     return saved ? saved === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches
   })
   const [currentConvId, setCurrentConvId] = useState<string | null>(null)
+  const sidebarRefresh = useRef<(() => void) | null>(null)
 
   useEffect(() => {
     auth.me().then(r => setAuthenticated(r.authenticated))
@@ -21,6 +21,11 @@ export default function App() {
     document.documentElement.classList.toggle('dark', darkMode)
     localStorage.setItem('theme', darkMode ? 'dark' : 'light')
   }, [darkMode])
+
+  const handleConvSaved = useCallback((id: string) => {
+    setCurrentConvId(id)
+    sidebarRefresh.current?.()
+  }, [])
 
   if (authenticated === null) {
     return (
@@ -34,20 +39,17 @@ export default function App() {
     return <Login onLogin={() => setAuthenticated(true)} />
   }
 
-  function handleConvSelect(conv: Conversation) {
-    setCurrentConvId(conv.id)
-  }
-
   return (
     <div className="flex h-screen bg-background overflow-hidden">
       <Sidebar
         currentId={currentConvId}
-        onSelect={handleConvSelect}
+        onSelect={conv => setCurrentConvId(conv.id)}
         onNew={() => setCurrentConvId(null)}
+        onRegisterRefresh={fn => { sidebarRefresh.current = fn }}
       />
       <ChatWindow
         currentConvId={currentConvId}
-        onConvSaved={setCurrentConvId}
+        onConvSaved={handleConvSaved}
         onNewConv={() => setCurrentConvId(null)}
         onLogout={() => setAuthenticated(false)}
         darkMode={darkMode}
