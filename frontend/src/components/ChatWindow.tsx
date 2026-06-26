@@ -42,6 +42,9 @@ export function ChatWindow({
     forceWebSearch,
   })
 
+  // Ref para saber se o currentConvId foi setado por um save (não deve carregar)
+  const justSavedIdRef = useRef<string | null>(null)
+
   // Limpa o chat quando o sidebar clica em "Nova conversa" (currentConvId → null)
   const prevConvId = useRef(currentConvId)
   useEffect(() => {
@@ -51,9 +54,9 @@ export function ChatWindow({
     prevConvId.current = currentConvId
   }, [currentConvId, clear])
 
-  // Carrega a conversa quando selecionada no sidebar
+  // Carrega a conversa APENAS quando selecionada no sidebar (não quando veio de um save)
   useEffect(() => {
-    if (currentConvId) {
+    if (currentConvId && currentConvId !== justSavedIdRef.current) {
       conversationsApi.load(currentConvId).then(data => {
         const msgs = (data.messages as Array<{ role: string; content: string }>).map((m, i) => ({
           id: `loaded-${i}`,
@@ -63,6 +66,7 @@ export function ChatWindow({
         loadMessages(msgs)
       }).catch(() => {})
     }
+    justSavedIdRef.current = null
   }, [currentConvId, loadMessages])
 
   const handleSend = useCallback(async (content: string, files: FileAttachment[]) => {
@@ -77,6 +81,7 @@ export function ChatWindow({
           selectedModel.id,
           title,
         )
+        justSavedIdRef.current = id  // impede o useEffect de recarregar as mensagens
         onConvSaved(id)
       } catch { /* DB not available */ }
     } else {
