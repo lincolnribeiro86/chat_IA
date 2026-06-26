@@ -151,12 +151,13 @@ function ModelRow({ model, selectedId, isFav, onSelect, onToggleFav }: RowProps)
 }
 
 function UsageTierBadge({ tier }: { tier: string }) {
-  const cfg: Record<string, { label: string; cls: string }> = {
-    low:        { label: 'Free',    cls: 'bg-emerald-100 dark:bg-emerald-900 text-emerald-700 dark:text-emerald-300' },
-    medium:     { label: 'Med',     cls: 'bg-yellow-100 dark:bg-yellow-900 text-yellow-700 dark:text-yellow-300' },
-    high:       { label: 'High',    cls: 'bg-orange-100 dark:bg-orange-900 text-orange-700 dark:text-orange-300' },
-    extra_high: { label: 'Pro',     cls: 'bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300' },
-  }
-  const { label, cls } = cfg[tier] ?? { label: tier, cls: 'bg-muted text-muted-foreground' }
-  return <span className={`text-[10px] px-1 rounded font-medium ${cls}`}>{label}</span>
+  if (tier === 'low')
+    return <span className="text-[10px] px-1 rounded font-medium bg-emerald-100 dark:bg-emerald-900 text-emerald-700 dark:text-emerald-300">Free</span>
+  if (tier === 'medium')
+    return <span className="text-[10px] px-1 rounded font-medium bg-yellow-100 dark:bg-yellow-900 text-yellow-700 dark:text-yellow-300">Med</span>
+  if (tier === 'high')
+    return <span className="text-[10px] px-1 rounded font-medium bg-orange-100 dark:bg-orange-900 text-orange-700 dark:text-orange-300">High</span>
+  if (tier === 'extra_high')
+    return <span className="text-[10px] px-1 rounded font-medium bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300">Pro</span>
+  return null
 }
