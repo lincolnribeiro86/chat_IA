@@ -136,8 +136,9 @@ function ModelRow({ model, selectedId, isFav, onSelect, onToggleFav }: RowProps)
 
       <span className="truncate flex-1">{model.name}</span>
 
-      {/* Badges de capacidade */}
-      <div className="flex gap-1 shrink-0">
+      {/* Badges */}
+      <div className="flex gap-1 shrink-0 items-center">
+        {model.usage_tier && <UsageTierBadge tier={model.usage_tier} />}
         {model.supports_vision && (
           <span className="text-[10px] bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 px-1 rounded">👁</span>
         )}
@@ -147,4 +148,15 @@ function ModelRow({ model, selectedId, isFav, onSelect, onToggleFav }: RowProps)
       </div>
     </button>
   )
+}
+
+function UsageTierBadge({ tier }: { tier: string }) {
+  const cfg: Record<string, { label: string; cls: string }> = {
+    low:        { label: 'Free',    cls: 'bg-emerald-100 dark:bg-emerald-900 text-emerald-700 dark:text-emerald-300' },
+    medium:     { label: 'Med',     cls: 'bg-yellow-100 dark:bg-yellow-900 text-yellow-700 dark:text-yellow-300' },
+    high:       { label: 'High',    cls: 'bg-orange-100 dark:bg-orange-900 text-orange-700 dark:text-orange-300' },
+    extra_high: { label: 'Pro',     cls: 'bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300' },
+  }
+  const { label, cls } = cfg[tier] ?? { label: tier, cls: 'bg-muted text-muted-foreground' }
+  return <span className={`text-[10px] px-1 rounded font-medium ${cls}`}>{label}</span>
 }

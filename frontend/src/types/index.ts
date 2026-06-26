@@ -29,6 +29,7 @@ export interface ModelInfo {
   supports_vision: boolean
   supports_tools: boolean
   context_window: number
+  usage_tier?: 'low' | 'medium' | 'high' | 'extra_high'
 }
 
 export interface ProviderGroup {
