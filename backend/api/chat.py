@@ -149,10 +149,15 @@ async def chat(req: ChatRequest, _user=Depends(require_auth)):
             # ── Web search para provedores sem tool calling (Ollama Cloud, etc.) ──
             if (req.enable_web_search or req.force_web_search) and (is_ollama_cloud or is_claude_sub):
                 tavily_key = resolved_keys.get("tavily_api_key", "")
-                if tavily_key:
+                if not tavily_key:
+                    yield _sse({"type": "tool_result", "tool_id": "web", "tool_name": "web_search",
+                                "tool_result": "Erro: Tavily API key não configurada em Settings"}).encode()
+                else:
+                    user_query = req.messages[-1].content if req.messages else ""
+                    yield _sse({"type": "tool_start", "tool_id": "web", "tool_name": "web_search",
+                                "tool_args": {"query": user_query}}).encode()
                     try:
                         from tavily import TavilyClient
-                        user_query = req.messages[-1].content if req.messages else ""
                         results = TavilyClient(api_key=tavily_key).search(user_query, max_results=5)
                         snippets = "\n\n".join(
                             f"[{r.get('title','')}]({r.get('url','')})\n{r.get('content','')}"
@@ -162,14 +167,16 @@ async def chat(req: ChatRequest, _user=Depends(require_auth)):
                             system_parts.append(
                                 f"\n## Resultados da busca web\nUse as informações abaixo para responder:\n\n{snippets}"
                             )
-                            # Atualiza a SystemMessage com os resultados
                             lc_messages[0] = SystemMessage(content="\n".join(system_parts))
-                            yield _sse({"type": "tool_start", "tool_id": "web", "tool_name": "web_search",
-                                        "tool_args": {"query": user_query}}).encode()
                             yield _sse({"type": "tool_result", "tool_id": "web", "tool_name": "web_search",
-                                        "tool_result": f"{len(results.get('results',[]))} resultados encontrados"}).encode()
+                                        "tool_result": f"{len(results.get('results', []))} resultados encontrados"}).encode()
+                        else:
+                            yield _sse({"type": "tool_result", "tool_id": "web", "tool_name": "web_search",
+                                        "tool_result": "Nenhum resultado encontrado"}).encode()
                     except Exception as e:
                         logger.warning(f"Web search failed: {e}")
+                        yield _sse({"type": "tool_result", "tool_id": "web", "tool_name": "web_search",
+                                    "tool_result": f"Erro na busca: {e}"}).encode()
 
             # ── Tool binding (modelos LangChain nativos) ───────────────────
             tools: list = []

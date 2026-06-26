@@ -1,22 +1,31 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useCallback } from 'react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import rehypeHighlight from 'rehype-highlight'
 import { User, Bot, Copy, Check } from 'lucide-react'
-import { ScrollArea } from '@/components/ui/scroll-area'
 import { CostBadge } from './CostBadge'
 import { ToolCallCard } from './ToolCallCard'
 import { cn } from '@/lib/utils'
 import type { Message } from '@/types'
-import { useState, useCallback } from 'react'
+import { useState } from 'react'
 
 interface Props { messages: Message[] }
 
 export function MessageList({ messages }: Props) {
+  const scrollRef = useRef<HTMLDivElement>(null)
   const bottomRef = useRef<HTMLDivElement>(null)
+  const isNearBottomRef = useRef(true)
+
+  const handleScroll = useCallback(() => {
+    const el = scrollRef.current
+    if (!el) return
+    isNearBottomRef.current = el.scrollHeight - el.scrollTop - el.clientHeight < 120
+  }, [])
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
+    if (isNearBottomRef.current) {
+      bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
+    }
   }, [messages])
 
   if (messages.length === 0) {
@@ -29,14 +38,14 @@ export function MessageList({ messages }: Props) {
   }
 
   return (
-    <ScrollArea className="flex-1">
+    <div ref={scrollRef} onScroll={handleScroll} className="flex-1 overflow-y-auto">
       <div className="max-w-3xl mx-auto px-4 py-6 space-y-6">
         {messages.map(msg => (
           <MessageBubble key={msg.id} message={msg} />
         ))}
         <div ref={bottomRef} />
       </div>
-    </ScrollArea>
+    </div>
   )
 }
 
