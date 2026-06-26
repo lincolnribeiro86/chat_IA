@@ -2,12 +2,13 @@ import { useEffect, useRef } from 'react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import rehypeHighlight from 'rehype-highlight'
-import { User, Bot } from 'lucide-react'
+import { User, Bot, Copy, Check } from 'lucide-react'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { CostBadge } from './CostBadge'
 import { ToolCallCard } from './ToolCallCard'
 import { cn } from '@/lib/utils'
 import type { Message } from '@/types'
+import { useState, useCallback } from 'react'
 
 interface Props { messages: Message[] }
 
@@ -36,6 +37,25 @@ export function MessageList({ messages }: Props) {
         <div ref={bottomRef} />
       </div>
     </ScrollArea>
+  )
+}
+
+function CopyButton({ text }: { text: string }) {
+  const [copied, setCopied] = useState(false)
+  const copy = useCallback(() => {
+    navigator.clipboard.writeText(text).then(() => {
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    })
+  }, [text])
+  return (
+    <button
+      onClick={copy}
+      className="absolute top-2 right-2 p-1.5 rounded bg-white/10 hover:bg-white/20 text-white/70 hover:text-white transition-colors"
+      title="Copiar"
+    >
+      {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
+    </button>
   )
 }
 
@@ -73,18 +93,50 @@ function MessageBubble({ message }: { message: Message }) {
         {/* Text */}
         {(message.content || message.streaming) && (
           <div className={cn(
-            'rounded-2xl px-4 py-2.5 text-sm',
+            'rounded-2xl px-4 py-3 text-sm',
             isUser
               ? 'bg-primary text-primary-foreground rounded-tr-sm'
-              : 'bg-muted rounded-tl-sm'
+              : 'bg-muted rounded-tl-sm w-full'
           )}>
             {isUser ? (
               <p className="whitespace-pre-wrap">{message.content}</p>
             ) : (
-              <div className={cn('prose prose-sm dark:prose-invert max-w-none', message.streaming && 'typing-cursor')}>
+              <div className={cn('markdown-body', message.streaming && 'typing-cursor')}>
                 <ReactMarkdown
                   remarkPlugins={[remarkGfm]}
                   rehypePlugins={[rehypeHighlight]}
+                  components={{
+                    pre({ children, ...props }) {
+                      // Extrai o texto do bloco de código para o botão de copiar
+                      const codeEl = (children as React.ReactElement)
+                      const codeText = codeEl?.props?.children ?? ''
+                      const lang = (codeEl?.props?.className ?? '').replace('language-', '')
+                      return (
+                        <div className="relative group my-3 rounded-lg overflow-hidden border border-white/10">
+                          {lang && (
+                            <div className="flex items-center justify-between px-4 py-1.5 bg-zinc-800 text-xs text-zinc-400 font-mono border-b border-white/10">
+                              <span>{lang}</span>
+                            </div>
+                          )}
+                          <pre {...props} className="!m-0 !rounded-none overflow-x-auto">
+                            {children}
+                          </pre>
+                          <CopyButton text={typeof codeText === 'string' ? codeText : String(codeText)} />
+                        </div>
+                      )
+                    },
+                    code({ className, children, ...props }) {
+                      const isBlock = className?.startsWith('language-')
+                      if (isBlock) {
+                        return <code className={className} {...props}>{children}</code>
+                      }
+                      return (
+                        <code className="bg-zinc-200 dark:bg-zinc-700 text-pink-600 dark:text-pink-400 px-1.5 py-0.5 rounded text-[0.85em] font-mono" {...props}>
+                          {children}
+                        </code>
+                      )
+                    },
+                  }}
                 >
                   {message.content}
                 </ReactMarkdown>
