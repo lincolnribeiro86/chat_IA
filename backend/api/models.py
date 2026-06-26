@@ -4,6 +4,7 @@ from providers.registry import CATALOG
 from providers.ollama_provider import fetch_ollama_models
 from providers.openrouter_provider import fetch_openrouter_models
 from config import settings
+from persistence import repository as repo
 
 router = APIRouter()
 
@@ -12,24 +13,27 @@ router = APIRouter()
 async def list_models(_user=Depends(require_auth)):
     static = list(CATALOG)
 
-    # Try to fetch live Ollama models
-    try:
-        ollama_live = await fetch_ollama_models(
-            settings.ollama_base_url, settings.ollama_api_key
-        )
-        if ollama_live:
-            # Merge: add live models not already in static catalog
-            existing_ids = {m["id"] for m in static if m["provider"] == "ollama"}
-            for m in ollama_live:
-                if m["id"] not in existing_ids:
-                    static.append(m)
-    except Exception:
-        pass
+    # Resolve Ollama key: UI settings tem prioridade sobre .env
+    ollama_key = repo.get_setting("ollama_api_key") or settings.ollama_api_key
+    ollama_url = repo.get_setting("ollama_base_url") or settings.ollama_base_url
+
+    # Só busca modelos locais se NÃO houver API key (cloud)
+    if not ollama_key:
+        try:
+            ollama_live = await fetch_ollama_models(ollama_url, None)
+            if ollama_live:
+                existing_ids = {m["id"] for m in static if m["provider"] == "ollama"}
+                for m in ollama_live:
+                    if m["id"] not in existing_ids:
+                        static.append(m)
+        except Exception:
+            pass
 
     # Try to fetch OpenRouter models if key is present
-    if settings.openrouter_api_key:
+    openrouter_key = repo.get_setting("openrouter_api_key") or settings.openrouter_api_key
+    if openrouter_key:
         try:
-            or_models = await fetch_openrouter_models(settings.openrouter_api_key)
+            or_models = await fetch_openrouter_models(openrouter_key)
             existing_ids = {m["id"] for m in static}
             for m in or_models:
                 if m["id"] not in existing_ids:
