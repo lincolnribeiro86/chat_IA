@@ -7,35 +7,33 @@ from config import settings
 # Each entry: id → {name, provider, supports_vision, supports_tools, context_window}
 
 CATALOG: list[dict] = [
-    # Ollama Cloud — Geral / Raciocínio
-    {"id": "gemma4:12b",                    "name": "Gemma 4 12B",              "provider": "ollama", "supports_vision": True,  "supports_tools": True,  "context_window": 128000},
-    {"id": "gemma4:26b",                    "name": "Gemma 4 26B",              "provider": "ollama", "supports_vision": True,  "supports_tools": True,  "context_window": 128000},
-    {"id": "gemma4:31b",                    "name": "Gemma 4 31B",              "provider": "ollama", "supports_vision": True,  "supports_tools": True,  "context_window": 256000},
-    {"id": "qwen3.5:9b",                    "name": "Qwen3.5 9B",               "provider": "ollama", "supports_vision": False, "supports_tools": True,  "context_window": 256000},
-    {"id": "qwen3.5:27b",                   "name": "Qwen3.5 27B",              "provider": "ollama", "supports_vision": False, "supports_tools": True,  "context_window": 256000},
-    {"id": "qwen3.5:35b",                   "name": "Qwen3.5 35B",              "provider": "ollama", "supports_vision": False, "supports_tools": True,  "context_window": 256000},
-    {"id": "qwen3.6:27b",                   "name": "Qwen3.6 27B",              "provider": "ollama", "supports_vision": True,  "supports_tools": True,  "context_window": 256000},
-    {"id": "deepseek-v4-flash:latest",      "name": "DeepSeek V4 Flash",        "provider": "ollama", "supports_vision": False, "supports_tools": True,  "context_window": 128000},
-    {"id": "deepseek-v4-pro:latest",        "name": "DeepSeek V4 Pro",          "provider": "ollama", "supports_vision": False, "supports_tools": True,  "context_window": 128000},
-    {"id": "nemotron-3-super:120b",         "name": "Nemotron 3 Super 120B",    "provider": "ollama", "supports_vision": False, "supports_tools": True,  "context_window": 128000},
-    {"id": "nemotron-3-ultra:latest",       "name": "Nemotron 3 Ultra",         "provider": "ollama", "supports_vision": False, "supports_tools": True,  "context_window": 128000},
-    {"id": "gpt-oss:20b",                   "name": "GPT OSS 20B",              "provider": "ollama", "supports_vision": False, "supports_tools": True,  "context_window": 128000},
-    {"id": "gpt-oss:120b",                  "name": "GPT OSS 120B",             "provider": "ollama", "supports_vision": False, "supports_tools": True,  "context_window": 128000},
+    # Ollama Cloud — todos os modelos usam tag :cloud
+    # Geral / Visão
+    {"id": "gemma4:cloud",                  "name": "Gemma 4 (Cloud)",           "provider": "ollama", "supports_vision": True,  "supports_tools": True,  "context_window": 256000},
+    {"id": "gemma4:31b-cloud",              "name": "Gemma 4 31B (Cloud)",       "provider": "ollama", "supports_vision": True,  "supports_tools": True,  "context_window": 256000},
+    {"id": "qwen3.5:cloud",                 "name": "Qwen3.5 (Cloud)",           "provider": "ollama", "supports_vision": True,  "supports_tools": True,  "context_window": 256000},
+    {"id": "qwen3.6:cloud",                 "name": "Qwen3.6 (Cloud)",           "provider": "ollama", "supports_vision": True,  "supports_tools": True,  "context_window": 256000},
+    {"id": "gemini-3-flash-preview:cloud",  "name": "Gemini 3 Flash (Cloud)",    "provider": "ollama", "supports_vision": True,  "supports_tools": True,  "context_window": 1000000},
+    {"id": "minimax-m3:cloud",              "name": "MiniMax M3 (Cloud)",        "provider": "ollama", "supports_vision": True,  "supports_tools": True,  "context_window": 512000},
+    {"id": "minimax-m2.7:cloud",            "name": "MiniMax M2.7 (Cloud)",      "provider": "ollama", "supports_vision": False, "supports_tools": True,  "context_window": 256000},
+    {"id": "minimax-m2.5:cloud",            "name": "MiniMax M2.5 (Cloud)",      "provider": "ollama", "supports_vision": False, "supports_tools": True,  "context_window": 256000},
+    {"id": "kimi-k2.7-code:cloud",          "name": "Kimi K2.7 Code (Cloud)",    "provider": "ollama", "supports_vision": True,  "supports_tools": True,  "context_window": 256000},
+    {"id": "kimi-k2.6:cloud",               "name": "Kimi K2.6 (Cloud)",         "provider": "ollama", "supports_vision": True,  "supports_tools": True,  "context_window": 256000},
+    {"id": "kimi-k2.5:cloud",               "name": "Kimi K2.5 (Cloud)",         "provider": "ollama", "supports_vision": True,  "supports_tools": True,  "context_window": 256000},
+    # Ollama Cloud — DeepSeek / Raciocínio
+    {"id": "deepseek-v4-flash:cloud",       "name": "DeepSeek V4 Flash (Cloud)", "provider": "ollama", "supports_vision": False, "supports_tools": True,  "context_window": 1000000},
+    {"id": "deepseek-v4-pro:cloud",         "name": "DeepSeek V4 Pro (Cloud)",   "provider": "ollama", "supports_vision": False, "supports_tools": True,  "context_window": 1000000},
+    {"id": "nemotron-3-super:cloud",        "name": "Nemotron 3 Super (Cloud)",  "provider": "ollama", "supports_vision": False, "supports_tools": True,  "context_window": 256000},
+    {"id": "nemotron-3-ultra:cloud",        "name": "Nemotron 3 Ultra (Cloud)",  "provider": "ollama", "supports_vision": False, "supports_tools": True,  "context_window": 256000},
     # Ollama Cloud — Código
-    {"id": "qwen3-coder:30b",               "name": "Qwen3 Coder 30B",          "provider": "ollama", "supports_vision": False, "supports_tools": True,  "context_window": 256000},
-    # Ollama Cloud — Visão / Multimodal
-    {"id": "gemini-3-flash-preview:latest", "name": "Gemini 3 Flash Preview",   "provider": "ollama", "supports_vision": True,  "supports_tools": True,  "context_window": 128000},
-    {"id": "minimax-m3:latest",             "name": "MiniMax M3",               "provider": "ollama", "supports_vision": True,  "supports_tools": True,  "context_window": 128000},
-    {"id": "minimax-m2.7:latest",           "name": "MiniMax M2.7",             "provider": "ollama", "supports_vision": False, "supports_tools": True,  "context_window": 128000},
-    {"id": "minimax-m2.5:latest",           "name": "MiniMax M2.5",             "provider": "ollama", "supports_vision": False, "supports_tools": True,  "context_window": 128000},
-    {"id": "kimi-k2.7-code:latest",         "name": "Kimi K2.7 Code",           "provider": "ollama", "supports_vision": True,  "supports_tools": True,  "context_window": 128000},
-    {"id": "kimi-k2.6:latest",              "name": "Kimi K2.6",                "provider": "ollama", "supports_vision": True,  "supports_tools": True,  "context_window": 128000},
-    {"id": "kimi-k2.5:latest",              "name": "Kimi K2.5",                "provider": "ollama", "supports_vision": True,  "supports_tools": True,  "context_window": 128000},
-    # Ollama Cloud — GLM / Outros
-    {"id": "glm-5.2:latest",               "name": "GLM-5.2",                  "provider": "ollama", "supports_vision": False, "supports_tools": True,  "context_window": 128000},
-    {"id": "glm-5.1:latest",               "name": "GLM-5.1",                  "provider": "ollama", "supports_vision": False, "supports_tools": True,  "context_window": 128000},
-    {"id": "glm-5:latest",                 "name": "GLM-5",                    "provider": "ollama", "supports_vision": False, "supports_tools": True,  "context_window": 128000},
-    {"id": "glm-4.7:latest",               "name": "GLM-4.7",                  "provider": "ollama", "supports_vision": False, "supports_tools": True,  "context_window": 128000},
+    {"id": "qwen3-coder:cloud",             "name": "Qwen3 Coder (Cloud)",       "provider": "ollama", "supports_vision": False, "supports_tools": True,  "context_window": 256000},
+    {"id": "gpt-oss:20b-cloud",             "name": "GPT OSS 20B (Cloud)",       "provider": "ollama", "supports_vision": False, "supports_tools": True,  "context_window": 128000},
+    {"id": "gpt-oss:120b-cloud",            "name": "GPT OSS 120B (Cloud)",      "provider": "ollama", "supports_vision": False, "supports_tools": True,  "context_window": 128000},
+    # Ollama Cloud — GLM
+    {"id": "glm-5.2:cloud",                "name": "GLM-5.2 (Cloud)",           "provider": "ollama", "supports_vision": False, "supports_tools": True,  "context_window": 976000},
+    {"id": "glm-5.1:cloud",                "name": "GLM-5.1 (Cloud)",           "provider": "ollama", "supports_vision": False, "supports_tools": True,  "context_window": 256000},
+    {"id": "glm-5:cloud",                  "name": "GLM-5 (Cloud)",             "provider": "ollama", "supports_vision": False, "supports_tools": True,  "context_window": 256000},
+    {"id": "glm-4.7:cloud",                "name": "GLM-4.7 (Cloud)",           "provider": "ollama", "supports_vision": False, "supports_tools": True,  "context_window": 256000},
     # OpenAI — GPT-5
     {"id": "gpt-5.5",                      "name": "GPT-5.5 ⭐",               "provider": "openai_gpt5", "supports_vision": True,  "supports_tools": True,  "context_window": 256000},
     {"id": "gpt-5.5-pro",                 "name": "GPT-5.5 Pro",              "provider": "openai_gpt5", "supports_vision": True,  "supports_tools": True,  "context_window": 256000},
