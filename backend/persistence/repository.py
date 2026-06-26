@@ -1,6 +1,7 @@
 import json
 from typing import Optional
 from persistence.db import get_conn, db_available
+from persistence import local_store
 import logging
 
 logger = logging.getLogger(__name__)
@@ -99,46 +100,46 @@ def delete_conversation(conv_id: str) -> bool:
 # ── App settings ──────────────────────────────────────────────────────────────
 
 def get_setting(key: str) -> Optional[str]:
-    if not db_available():
-        return None
-    try:
-        with get_conn() as conn:
-            with conn.cursor() as cur:
-                cur.execute("SELECT value FROM app_settings WHERE key=%s", (key,))
-                row = cur.fetchone()
-        return row[0] if row else None
-    except Exception as e:
-        logger.error(f"get_setting: {e}")
-        return None
+    if db_available():
+        try:
+            with get_conn() as conn:
+                with conn.cursor() as cur:
+                    cur.execute("SELECT value FROM app_settings WHERE key=%s", (key,))
+                    row = cur.fetchone()
+            return row[0] if row else None
+        except Exception as e:
+            logger.error(f"get_setting DB: {e}")
+    return local_store.get(key)
 
 
 def set_setting(key: str, value: str) -> bool:
-    if not db_available():
-        return False
-    try:
-        with get_conn() as conn:
-            with conn.cursor() as cur:
-                cur.execute(
-                    "INSERT INTO app_settings (key,value) VALUES (%s,%s) "
-                    "ON CONFLICT (key) DO UPDATE SET value=EXCLUDED.value",
-                    (key, value),
-                )
-            conn.commit()
-        return True
-    except Exception as e:
-        logger.error(f"set_setting: {e}")
-        return False
+    local_store.set(key, value)
+    if db_available():
+        try:
+            with get_conn() as conn:
+                with conn.cursor() as cur:
+                    cur.execute(
+                        "INSERT INTO app_settings (key,value) VALUES (%s,%s) "
+                        "ON CONFLICT (key) DO UPDATE SET value=EXCLUDED.value",
+                        (key, value),
+                    )
+                conn.commit()
+            return True
+        except Exception as e:
+            logger.error(f"set_setting DB: {e}")
+    return True  # saved to local file at minimum
 
 
 def get_all_settings() -> dict[str, str]:
-    if not db_available():
-        return {}
-    try:
-        with get_conn() as conn:
-            with conn.cursor() as cur:
-                cur.execute("SELECT key,value FROM app_settings")
-                rows = cur.fetchall()
-        return {r[0]: r[1] for r in rows}
-    except Exception as e:
-        logger.error(f"get_all_settings: {e}")
-        return {}
+    local = local_store.load_all()
+    if db_available():
+        try:
+            with get_conn() as conn:
+                with conn.cursor() as cur:
+                    cur.execute("SELECT key,value FROM app_settings")
+                    rows = cur.fetchall()
+            db = {r[0]: r[1] for r in rows}
+            return {**local, **db}  # DB takes precedence over local file
+        except Exception as e:
+            logger.error(f"get_all_settings DB: {e}")
+    return local
