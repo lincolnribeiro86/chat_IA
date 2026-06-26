@@ -92,6 +92,7 @@ async def chat(req: ChatRequest, _user=Depends(require_auth)):
             model_info = get_model_info(req.model_id) or {}
             is_gpt5 = getattr(llm, "_IS_GPT5", False)
             is_claude_sub = getattr(llm, "_IS_CLAUDE_SUB", False)
+            is_ollama_cloud = getattr(llm, "_IS_OLLAMA_CLOUD", False)
 
             # ── Prepare file context ───────────────────────────────────────
             text_files = [f for f in req.files if f.type == "text" and f.content]
@@ -148,7 +149,7 @@ async def chat(req: ChatRequest, _user=Depends(require_auth)):
             # ── Tool binding ───────────────────────────────────────────────
             tools: list = []
             if req.enable_web_search or req.force_web_search:
-                if not is_claude_sub and not is_gpt5:
+                if not is_claude_sub and not is_gpt5 and not is_ollama_cloud:
                     llm, tools = bind_tools_if_supported(llm, model_info)
 
             # ── Stream response ────────────────────────────────────────────
@@ -165,8 +166,8 @@ async def chat(req: ChatRequest, _user=Depends(require_auth)):
                         pass
                     yield event.encode()
 
-            elif is_gpt5:
-                # GPT-5 → Responses API com streaming real
+            elif is_gpt5 or is_ollama_cloud:
+                # GPT-5 (Responses API) ou Ollama Cloud (native client)
                 async for chunk in llm.astream(lc_messages):
                     if chunk.usage_metadata:
                         usage_data = chunk.usage_metadata
