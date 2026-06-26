@@ -50,6 +50,9 @@ CATALOG: list[dict] = [
     {"id": "gemini-2.0-flash",            "name": "Gemini 2.0 Flash",         "provider": "gemini",      "supports_vision": True,  "supports_tools": True,  "context_window": 1000000},
     {"id": "gemini-1.5-flash",            "name": "Gemini 1.5 Flash",         "provider": "gemini",      "supports_vision": True,  "supports_tools": True,  "context_window": 1000000},
     {"id": "gemini-1.5-pro",              "name": "Gemini 1.5 Pro",           "provider": "gemini",      "supports_vision": True,  "supports_tools": True,  "context_window": 2097152},
+    # DeepSeek API (api.deepseek.com)
+    {"id": "deepseek-chat",     "name": "DeepSeek V3",       "provider": "deepseek", "supports_vision": False, "supports_tools": True,  "context_window": 64000},
+    {"id": "deepseek-reasoner", "name": "DeepSeek R1",       "provider": "deepseek", "supports_vision": False, "supports_tools": False, "context_window": 64000},
     # Groq
     {"id": "deepseek-r1-distill-llama-70b",                  "name": "DeepSeek R1 Llama 70B (Groq)", "provider": "groq", "supports_vision": False, "supports_tools": False, "context_window": 128000},
     {"id": "meta-llama/llama-4-maverick-17b-128e-instruct",  "name": "Llama 4 Maverick (Groq)",      "provider": "groq", "supports_vision": True,  "supports_tools": True,  "context_window": 131072},
@@ -125,5 +128,12 @@ def build_provider(model_id: str, api_keys: dict[str, str] = None, temperature: 
         if not ak:
             raise ValueError("OpenRouter API key not configured")
         return build_openrouter(model_id, ak, temperature)
+
+    if provider == "deepseek":
+        from providers.deepseek_provider import build_deepseek
+        ak = key("deepseek_api_key")
+        if not ak:
+            raise ValueError("DeepSeek API key not configured")
+        return build_deepseek(model_id, ak, temperature)
 
     raise ValueError(f"Unknown provider: {provider}")

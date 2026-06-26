@@ -80,7 +80,7 @@ async def chat(req: ChatRequest, _user=Depends(require_auth)):
             # ── Resolve API keys (DB > env) ───────────────────────────────
             resolved_keys: dict[str, str] = {}
             for k in ["openai_api_key", "anthropic_api_key", "gemini_api_key", "groq_api_key",
-                      "openrouter_api_key", "ollama_base_url", "ollama_api_key",
+                      "openrouter_api_key", "deepseek_api_key", "ollama_base_url", "ollama_api_key",
                       "tavily_api_key", "firecrawl_api_key", "claude_code_oauth_token"]:
                 db_val = repo.get_setting(k)
                 resolved_keys[k] = req.api_keys.get(k) or db_val or getattr(settings, k, None) or ""

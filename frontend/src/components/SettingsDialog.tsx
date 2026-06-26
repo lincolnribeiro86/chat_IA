@@ -16,6 +16,7 @@ const KEY_LABELS: Record<string, string> = {
   gemini_api_key: 'Google Gemini API Key',
   groq_api_key: 'Groq API Key',
   openrouter_api_key: 'OpenRouter API Key',
+  deepseek_api_key: 'DeepSeek API Key',
   ollama_base_url: 'Ollama Base URL',
   ollama_api_key: 'Ollama Cloud API Key',
   tavily_api_key: 'Tavily API Key (busca web)',

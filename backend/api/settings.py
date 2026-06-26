@@ -11,7 +11,7 @@ router = APIRouter()
 # Keys that can be stored in DB (never return actual values to client)
 MANAGED_KEYS = [
     "openai_api_key", "anthropic_api_key", "gemini_api_key", "groq_api_key",
-    "openrouter_api_key", "ollama_base_url", "ollama_api_key",
+    "openrouter_api_key", "deepseek_api_key", "ollama_base_url", "ollama_api_key",
     "tavily_api_key", "firecrawl_api_key", "claude_code_oauth_token",
 ]
 

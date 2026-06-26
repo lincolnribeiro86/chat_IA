@@ -58,6 +58,7 @@ export interface AppSettings {
   gemini_api_key: boolean
   groq_api_key: boolean
   openrouter_api_key: boolean
+  deepseek_api_key: boolean
   ollama_base_url: string
   ollama_api_key: boolean
   tavily_api_key: boolean

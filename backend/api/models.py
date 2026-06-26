@@ -48,6 +48,7 @@ async def list_models(_user=Depends(require_auth)):
         "gemini": "Google Gemini",
         "groq": "Groq",
         "openrouter": "OpenRouter",
+        "deepseek": "DeepSeek",
     }
     for m in static:
         prov = m["provider"]
