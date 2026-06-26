@@ -1,9 +1,7 @@
 import { useState, useRef, useCallback } from 'react'
 import { streamChat } from '@/lib/api'
 import type { Message, FileAttachment, ToolCall, UsageInfo } from '@/types'
-import { v4 as uuidv4 } from 'uuid'
 
-// Lightweight UUID without the package — use crypto
 function uid() {
   return crypto.randomUUID()
 }
