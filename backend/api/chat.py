@@ -166,23 +166,13 @@ async def chat(req: ChatRequest, _user=Depends(require_auth)):
                     yield event.encode()
 
             elif is_gpt5:
-                # GPT-5 Responses API — non-streaming, simulate progress
-                llm.set_model(req.model_id)
-                msgs_dicts = []
-                for m in lc_messages:
-                    if isinstance(m, SystemMessage):
-                        msgs_dicts.insert(0, {"role": "system", "content": m.content})
-                    elif isinstance(m, HumanMessage):
-                        content = m.content if isinstance(m.content, str) else str(m.content)
-                        msgs_dicts.append({"role": "user", "content": content})
-                    elif isinstance(m, AIMessage):
-                        msgs_dicts.append({"role": "assistant", "content": m.content})
-
-                result = llm.invoke_with_verbosity(msgs_dicts)
-                full_response = result.get("content", "")
-                usage_data = result.get("usage", {})
-                # Emit as single token (non-streaming)
-                yield _sse({"type": "token", "content": full_response}).encode()
+                # GPT-5 → Responses API com streaming real
+                async for chunk in llm.astream(lc_messages):
+                    if chunk.usage_metadata:
+                        usage_data = chunk.usage_metadata
+                    if chunk.content:
+                        full_response += chunk.content
+                        yield _sse({"type": "token", "content": chunk.content}).encode()
 
             else:
                 # Standard LangChain streaming with tool-calling loop

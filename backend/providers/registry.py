@@ -114,7 +114,7 @@ def build_provider(model_id: str, api_keys: dict[str, str] = None, temperature: 
         if not ak:
             raise ValueError("OpenAI API key not configured")
         if provider == "openai_gpt5":
-            return build_gpt5(ak)
+            return build_gpt5(model_id, ak, temperature)
         return build_openai(model_id, ak, temperature)
 
     if provider == "anthropic":
