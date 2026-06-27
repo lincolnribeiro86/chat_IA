@@ -2,6 +2,7 @@ import { useEffect, useRef, memo } from 'react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import rehypeHighlight from 'rehype-highlight'
+import rehypeRaw from 'rehype-raw'
 import { User, Bot, Copy, Check } from 'lucide-react'
 import { CostBadge } from './CostBadge'
 import { ToolCallCard } from './ToolCallCard'
@@ -116,7 +117,7 @@ const MessageBubble = memo(function MessageBubble({ message }: { message: Messag
               <div className={cn('markdown-body', message.streaming && 'typing-cursor')}>
                 <ReactMarkdown
                   remarkPlugins={[remarkGfm]}
-                  rehypePlugins={[rehypeHighlight]}
+                  rehypePlugins={[rehypeRaw, rehypeHighlight]}
                   components={{
                     pre({ children, ...props }) {
                       // Extrai o texto do bloco de código para o botão de copiar

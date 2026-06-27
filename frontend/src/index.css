@@ -112,3 +112,33 @@ pre::-webkit-scrollbar-thumb { background: #45475a; border-radius: 3px; }
 
 .markdown-body pre { font-size: 0.875em; }
 .markdown-body pre code { font-family: 'Fira Code', 'Cascadia Code', 'JetBrains Mono', Consolas, monospace; }
+
+/* ── Thinking block (reasoning models) ────────────────────────── */
+.markdown-body details {
+  border-left: 2px solid hsl(var(--muted-foreground) / 0.3);
+  margin: 0.5em 0 1em 0;
+  padding-left: 0.75em;
+}
+.markdown-body details summary {
+  cursor: pointer;
+  font-size: 0.8em;
+  color: hsl(var(--muted-foreground));
+  user-select: none;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 0.4em;
+  padding: 0.25em 0;
+}
+.markdown-body details summary::-webkit-details-marker { display: none; }
+.markdown-body details summary::before {
+  content: '▶';
+  font-size: 0.65em;
+  transition: transform 0.15s;
+}
+.markdown-body details[open] summary::before { transform: rotate(90deg); }
+.markdown-body details > *:not(summary) {
+  font-size: 0.82em;
+  color: hsl(var(--muted-foreground));
+  opacity: 0.85;
+}
