@@ -102,7 +102,7 @@ export function ChatWindow({
   }
 
   return (
-    <div className="flex-1 flex flex-col min-h-0">
+    <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
       {/* Top bar */}
       <header className="flex items-center gap-2 px-4 py-2 border-b bg-background shrink-0">
         <div className="flex-1">

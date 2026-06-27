@@ -1,4 +1,4 @@
-import { useEffect, useRef, useCallback } from 'react'
+import { useEffect, useRef, memo } from 'react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import rehypeHighlight from 'rehype-highlight'
@@ -7,25 +7,29 @@ import { CostBadge } from './CostBadge'
 import { ToolCallCard } from './ToolCallCard'
 import { cn } from '@/lib/utils'
 import type { Message } from '@/types'
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 
 interface Props { messages: Message[] }
 
 export function MessageList({ messages }: Props) {
   const scrollRef = useRef<HTMLDivElement>(null)
-  const bottomRef = useRef<HTMLDivElement>(null)
   const isNearBottomRef = useRef(true)
+  const prevLengthRef = useRef(0)
 
-  const handleScroll = useCallback(() => {
+  function handleScroll() {
     const el = scrollRef.current
     if (!el) return
-    isNearBottomRef.current = el.scrollHeight - el.scrollTop - el.clientHeight < 120
-  }, [])
+    isNearBottomRef.current = el.scrollHeight - el.scrollTop - el.clientHeight < 150
+  }
 
   useEffect(() => {
-    if (isNearBottomRef.current) {
-      bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
+    const el = scrollRef.current
+    if (!el) return
+    // New message added → always scroll. Content update → only if near bottom.
+    if (messages.length > prevLengthRef.current || isNearBottomRef.current) {
+      el.scrollTop = el.scrollHeight
     }
+    prevLengthRef.current = messages.length
   }, [messages])
 
   if (messages.length === 0) {
@@ -38,12 +42,11 @@ export function MessageList({ messages }: Props) {
   }
 
   return (
-    <div ref={scrollRef} onScroll={handleScroll} className="flex-1 overflow-y-auto">
+    <div ref={scrollRef} onScroll={handleScroll} className="flex-1 overflow-y-auto min-h-0">
       <div className="max-w-3xl mx-auto px-4 py-6 space-y-6">
         {messages.map(msg => (
           <MessageBubble key={msg.id} message={msg} />
         ))}
-        <div ref={bottomRef} />
       </div>
     </div>
   )
@@ -68,7 +71,7 @@ function CopyButton({ text }: { text: string }) {
   )
 }
 
-function MessageBubble({ message }: { message: Message }) {
+const MessageBubble = memo(function MessageBubble({ message }: { message: Message }) {
   const isUser = message.role === 'user'
 
   return (
@@ -161,4 +164,4 @@ function MessageBubble({ message }: { message: Message }) {
       </div>
     </div>
   )
-}
+})

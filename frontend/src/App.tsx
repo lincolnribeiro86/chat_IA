@@ -136,7 +136,7 @@ export default function App() {
       </button>
 
       {/* Chat */}
-      <div className="flex-1 min-w-0">
+      <div className="flex-1 min-w-0 flex flex-col min-h-0">
         <ChatWindow
           currentConvId={currentConvId}
           onConvSaved={handleConvSaved}
