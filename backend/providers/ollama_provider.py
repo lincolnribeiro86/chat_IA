@@ -38,20 +38,50 @@ class OllamaCloudProvider:
             elif isinstance(m, AIMessage):
                 messages.append({"role": "assistant", "content": m.content if isinstance(m.content, str) else str(m.content)})
 
+        thinking_started = False
+        thinking_ended = False
+
         async for part in await client.chat(
             model=self._model_id,
             messages=messages,
             stream=True,
         ):
-            msg = part.get("message", {})
-            content = msg.get("content", "") if isinstance(msg, dict) else getattr(msg, "content", "")
-            done = part.get("done", False) if isinstance(part, dict) else getattr(part, "done", False)
+            # Support both dict and pydantic object (ollama 0.6+)
+            if isinstance(part, dict):
+                msg = part.get("message", {})
+                content = msg.get("content", "") if isinstance(msg, dict) else getattr(msg, "content", "")
+                thinking = msg.get("thinking", "") if isinstance(msg, dict) else getattr(msg, "thinking", "")
+                done = part.get("done", False)
+                prompt_tokens = part.get("prompt_eval_count", 0) if done else 0
+                completion_tokens = part.get("eval_count", 0) if done else 0
+            else:
+                msg = getattr(part, "message", None)
+                content = getattr(msg, "content", "") if msg is not None else ""
+                thinking = getattr(msg, "thinking", "") if msg is not None else ""
+                done = getattr(part, "done", False)
+                prompt_tokens = getattr(part, "prompt_eval_count", 0) if done else 0
+                completion_tokens = getattr(part, "eval_count", 0) if done else 0
+
+            # Wrap thinking tokens in a collapsible markdown block
+            if thinking:
+                if not thinking_started:
+                    yield _FakeChunk("<details>\n<summary>💭 Raciocínio</summary>\n\n")
+                    thinking_started = True
+                yield _FakeChunk(thinking)
+
+            # Close thinking block when content starts
+            if content and thinking_started and not thinking_ended:
+                yield _FakeChunk("\n</details>\n\n")
+                thinking_ended = True
+
             if content:
                 yield _FakeChunk(content)
+
             if done:
-                # usage
-                prompt_tokens = part.get("prompt_eval_count", 0) if isinstance(part, dict) else getattr(part, "prompt_eval_count", 0)
-                completion_tokens = part.get("eval_count", 0) if isinstance(part, dict) else getattr(part, "eval_count", 0)
+                # Close any open thinking block
+                if thinking_started and not thinking_ended:
+                    yield _FakeChunk("\n</details>\n\n")
+                    thinking_ended = True
                 if prompt_tokens or completion_tokens:
                     yield _FakeChunk("", usage={
                         "input_tokens": prompt_tokens,
